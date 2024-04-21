@@ -1,0 +1,17 @@
+# Ignore venv content
+venv/
+
+# Ignore Flask project files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyi
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Ignore the database
+*.db
+*.sqlite
