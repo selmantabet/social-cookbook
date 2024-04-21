@@ -1,0 +1,12 @@
+{% extends "layout.html" %} {% block content %}
+<h1>Welcome to the Sourced Cookbook!</h1>
+<h1>Add Recipe</h1>
+<form method="POST" action="">
+  {{ form.csrf_token }}
+  <p>{{ form.title.label }} {{ form.title }}</p>
+  <p>{{ form.ingredients.label }} {{ form.ingredients }}</p>
+  <p>{{ form.instructions.label }} {{ form.instructions }}</p>
+  <input type="submit" value="Submit" />
+</form>
+<a href="{{ url_for('my_recipes') }}">Back to Recipes</a>
+{% endblock content %}

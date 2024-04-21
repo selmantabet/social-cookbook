@@ -1,0 +1,9 @@
+{% extends "layout.html" %} {% block content %}
+<div class="recipe-details">
+  <h1>{{ recipe.title }}</h1>
+  <h2 class="section-title">Ingredients</h2>
+  <p>{{ recipe.ingredients }}</p>
+  <h2 class="section-title">Instructions</h2>
+  <p>{{ recipe.instructions }}</p>
+</div>
+{% endblock content %}

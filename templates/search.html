@@ -1,0 +1,19 @@
+{% extends "layout.html" %} {% block content %} {% for result in results %}
+<a
+  href="{{url_for('result', result_id=result.id)}}"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <h2>{{result["title"]}}</h2>
+  <img src="{{result['image']}}" alt="" />
+</a>
+<h3>Missed Ingredients</h3>
+{% for missed in result["missedIngredients"]%}
+<p>{{missed["originalName"]}}</p>
+{% endfor %}
+<h3>Used Ingredients</h3>
+{% for used in result["usedIngredients"]%}
+<p>{{used["originalName"]}}</p>
+{% endfor %}
+<hr />
+{%endfor %} {% endblock content %}

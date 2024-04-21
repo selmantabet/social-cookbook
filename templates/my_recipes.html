@@ -1,0 +1,25 @@
+{% extends "layout.html" %} {% block content %}
+
+<h1>My Recipes</h1>
+
+{% for recipe in recipes %}
+
+<div class="recipe">
+  <h2>
+    <a href="{{url_for('view_recipe', recipe_id=recipe.id)}}"
+      >{{recipe.title}}</a
+    >
+  </h2>
+  <h4>Ingredients</h4>
+  <p>{{ recipe.ingredients }}</p>
+  <h4>Instructions</h4>
+  <p>{{ recipe.instructions }}</p>
+  <a href="{{url_for('delete_recipe', recipe_id=recipe.id)}}"
+    ><input type="submit" value="Delete"
+  /></a>
+  <hr />
+  {% endfor %}
+
+  <hr />
+</div>
+{% endblock content %}

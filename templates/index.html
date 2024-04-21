@@ -1,0 +1,22 @@
+{% extends "layout.html" %}{% block content %}
+<h1>Welcome to "Mini Kitchen"</h1>
+<h4>"Unleash your inner chef with MEEEE!!</h4>
+
+<h2>Here are some recipes.</h2>
+<hr />
+{% for recipe in recipes %}
+<div class="recipe-details">
+  <a
+    href="{{url_for('result', result_id=recipe.id)}}"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <h2>{{recipe.title}}</h2>
+    <!-- Display the recipe image if available -->
+    {% if recipe.image %}
+    <img src="{{ recipe.image }}" alt="{{ recipe.title }}" />
+    {% endif %}
+  </a>
+</div>
+<hr />
+{% endfor %} {% endblock %}
