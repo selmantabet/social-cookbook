@@ -15,3 +15,4 @@ build/
 # Ignore the database
 *.db
 *.sqlite
+instance/

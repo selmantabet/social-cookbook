@@ -6,7 +6,7 @@ from flask_login import UserMixin
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
-    hashed_password = db.Column(db.String(50), nullable=False)
+    hashed_password = db.Column(db.String(128), nullable=False)
     settings_json = db.Column(db.String(200), default="{}")
     recipe = db.relationship(
         'Recipe', backref='user', lazy=True, cascade="all, delete")
