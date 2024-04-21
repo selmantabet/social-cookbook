@@ -37,12 +37,6 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
 
-    def verify_credential(self, username, password):
-        user = User.query.filter_by(username=username.data).first()
-        if not (user is not None and user.verify_password(password)):
-            raise ValidationError(
-                'Invalid username or password. Please try again.')
-
 
 class RecipeForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
