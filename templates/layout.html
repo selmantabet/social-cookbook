@@ -37,7 +37,13 @@
                 <a class="nav-link" href="{{ url_for('my_recipes') }}">My Recipes</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('create_profile') }}">Create Profile</a>
+                <a class="nav-link" href="{{ url_for('create_profile') }}">Taste Profile</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('profile') }}">My Page</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('pantry') }}">My Pantry</a>
               </li>
               {% if show_search == True %}
               <form class="d-flex" method="POST" role="search">

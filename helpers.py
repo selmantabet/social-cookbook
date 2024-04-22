@@ -7,7 +7,9 @@ import os
 from app import db, app
 
 API_KEY = "4542ec46de1643b09c1f06550d95a510"
-
+CUISINES = ["African", "Asian", "American", "British", "Cajun", "Caribbean", "Chinese", "Eastern European", "European", "French", "German",
+            "Greek", "Indian", "Irish", "Italian", "Japanese", "Jewish", "Korean", "Latin American", "Mediterranean", "Mexican", "Middle Eastern",
+            "Nordic", "Southern", "Spanish", "Thai", "Vietnamese"]
 DIET_TITLES = ["Omnivore (Unrestricted)", "Vegetarian", "Vegan", "Gluten-free", "Paleo", "Keto", "Lacto-Vegetarian", "Ovo-Vegetarian",  "Pescetarian",
                "Primal", "Whole30", "Low FODMAP"]
 DIET_VALUES = ["omnivore", "vegetarian", "vegan", "gluten free", "paleo", "ketogenic", "lacto-vegetarian", "ovo-vegetarian", "pescetarian",
@@ -23,6 +25,7 @@ DIETS = list(zip(DIET_TITLES, DIET_VALUES))
 TASTES = list(zip(TASTE_TITLES, TASTE_VALUES))
 ALLERGIES = list(zip(ALLERGY_TITLES, ALLERGY_VALUES))
 DEFAULT_PROFILE = {
+    "cuisines": [],
     "taste": {
         "salty": 50, "spicy": 50, "sour": 50, "sweet": 50, "bitter": 50, "fatty": 50, "savory": 50
     },

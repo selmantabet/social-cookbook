@@ -102,7 +102,7 @@ def logout():
 @app.route('/create_profile', methods=['GET', 'POST'])
 @login_required
 def create_profile():
-    from helpers import load_settings, ALLERGIES, DIETS, TASTES, DEFAULT_PROFILE
+    from helpers import CUISINES, ALLERGIES, DIETS, TASTES, DEFAULT_PROFILE
     if session.get("food_profile") is not None:
         initial_data = session.get("food_profile")
     else:
@@ -118,7 +118,9 @@ def create_profile():
         savory = request.form.get("savory")
         diet = request.form.get('diet')
         allergies = request.form.getlist('allergy')
+        cuisines = request.form.getlist('cuisine')
         session['food_profile'] = {
+            "cuisines": cuisines,
             "taste": {
                 "salty": salty, "spicy": spicy, "sour": sour, "sweet": sweet, "bitter": bitter, "fatty": fatty, "savory": savory
             },
@@ -130,12 +132,29 @@ def create_profile():
         current_user.settings_json = json.dumps(settings)
         db.session.commit()
         flash('Profile updated successfully', 'success')
+        return redirect(url_for('index'))
 
-    return render_template('create_profile.html', tastes=TASTES, diets=DIETS, allergies=ALLERGIES, initial_data=initial_data)
+    return render_template('create_profile.html', cuisines=CUISINES, tastes=TASTES, diets=DIETS, allergies=ALLERGIES, initial_data=initial_data)
 
 
-@app.route('/add_recipe', methods=['GET', 'POST'])
-@login_required
+@app.route('/profile', methods=['GET', 'POST'])
+@ login_required
+def profile():
+    from helpers import load_settings
+    load_settings(current_user.settings_json)
+    return render_template('profile.html')
+
+
+@ app.route('/pantry', methods=['GET', 'POST'])
+@ login_required
+def pantry():
+    from helpers import load_settings
+    load_settings(current_user.settings_json)
+    return render_template('pantry.html')
+
+
+@ app.route('/add_recipe', methods=['GET', 'POST'])
+@ login_required
 def add_recipe():
     from models import Recipe
     from forms import RecipeForm
@@ -150,7 +169,7 @@ def add_recipe():
     return render_template('add_recipe.html', form=form)
 
 
-@app.route('/result/<int:result_id>')
+@ app.route('/result/<int:result_id>')
 def result(result_id):
     from helpers import search_by_recipe_id
     recipe = search_by_recipe_id(result_id)
@@ -160,7 +179,7 @@ def result(result_id):
     return render_template('result.html', recipe=recipe)
 
 
-@app.route('/view_recipe/<int:recipe_id>', methods=['GET', 'POST'])
+@ app.route('/view_recipe/<int:recipe_id>', methods=['GET', 'POST'])
 def view_recipe(recipe_id):
     from models import Recipe
     recipe = Recipe.query.get(recipe_id)
@@ -170,16 +189,16 @@ def view_recipe(recipe_id):
     return render_template('view_recipe.html', recipe=recipe)
 
 
-@app.route('/my_recipes', methods=['GET', 'POST'])
-@login_required
+@ app.route('/my_recipes', methods=['GET', 'POST'])
+@ login_required
 def my_recipes():
     from models import Recipe
     recipes = Recipe.query.filter_by(user_id=current_user.id)
     return render_template('my_recipes.html', recipes=recipes)
 
 
-@app.route('/delete_recipe/<int:recipe_id>', methods=['GET', 'POST'])
-@login_required
+@ app.route('/delete_recipe/<int:recipe_id>', methods=['GET', 'POST'])
+@ login_required
 def delete_recipe(recipe_id):
     from models import Recipe
     recipe = Recipe.query.get(recipe_id)
