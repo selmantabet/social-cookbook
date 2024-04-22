@@ -8,6 +8,27 @@ from app import db, app
 
 API_KEY = "4542ec46de1643b09c1f06550d95a510"
 
+DIET_TITLES = ["Omnivore (Unrestricted)", "Vegetarian", "Vegan", "Gluten-free", "Paleo", "Keto", "Lacto-Vegetarian", "Ovo-Vegetarian",  "Pescetarian",
+               "Primal", "Whole30", "Low FODMAP"]
+DIET_VALUES = ["omnivore", "vegetarian", "vegan", "gluten free", "paleo", "ketogenic", "lacto-vegetarian", "ovo-vegetarian", "pescetarian",
+               "primal", "whole30", "low fodmap"]
+TASTE_TITLES = ["Salty", "Spicy",
+                "Sour", "Sweet",  "Bitter", "Fatty", "Savory"]
+TASTE_VALUES = ["salty", "spicy", "sour", "sweet", "bitter", "fatty", "savory"]
+ALLERGY_TITLES = ["Peanut", "Dairy", "Soy", "Shellfish", "Seafood", "Egg", "Sulfite", "Gluten", "Sesame", "Tree Nut", "Grain",
+                  "Wheat"]
+ALLERGY_VALUES = ["peanut", "dairy", "soy", "shellfish", "seafood", "egg", "sulfite", "gluten", "sesame", "tree nut", "grain",
+                  "wheat"]
+DIETS = list(zip(DIET_TITLES, DIET_VALUES))
+TASTES = list(zip(TASTE_TITLES, TASTE_VALUES))
+ALLERGIES = list(zip(ALLERGY_TITLES, ALLERGY_VALUES))
+DEFAULT_PROFILE = {
+    "taste": {
+        "salty": 50, "spicy": 50, "sour": 50, "sweet": 50, "bitter": 50, "fatty": 50, "savory": 50
+    },
+    "diet": "omnivore",
+    "allergies": []
+}
 # This method was based on the docs here- https://flask-uploads.readthedocs.io/en/latest/
 images = UploadSet('images', IMAGES)
 

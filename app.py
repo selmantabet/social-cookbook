@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 import os
+import json
 
 cwd = os.getcwd()
 app = Flask(__name__)
@@ -96,6 +97,41 @@ def logout():
     logout_user()
     flash('Logout successful.', 'success')
     return redirect(url_for('index'))
+
+
+@app.route('/create_profile', methods=['GET', 'POST'])
+@login_required
+def create_profile():
+    from helpers import load_settings, ALLERGIES, DIETS, TASTES, DEFAULT_PROFILE
+    if session.get("food_profile") is not None:
+        initial_data = session.get("food_profile")
+    else:
+        print("No profile found, using defaults.")
+        initial_data = DEFAULT_PROFILE
+    if request.method == 'POST':
+        salty = request.form.get("salty")
+        spicy = request.form.get("spicy")
+        sour = request.form.get("sour")
+        sweet = request.form.get("sweet")
+        bitter = request.form.get("bitter")
+        fatty = request.form.get("fatty")
+        savory = request.form.get("savory")
+        diet = request.form.get('diet')
+        allergies = request.form.getlist('allergy')
+        session['food_profile'] = {
+            "taste": {
+                "salty": salty, "spicy": spicy, "sour": sour, "sweet": sweet, "bitter": bitter, "fatty": fatty, "savory": savory
+            },
+            "diet": diet,
+            "allergies": allergies
+        }
+        settings = json.loads(current_user.settings_json)
+        settings['food_profile'] = session['food_profile']
+        current_user.settings_json = json.dumps(settings)
+        db.session.commit()
+        flash('Profile updated successfully', 'success')
+
+    return render_template('create_profile.html', tastes=TASTES, diets=DIETS, allergies=ALLERGIES, initial_data=initial_data)
 
 
 @app.route('/add_recipe', methods=['GET', 'POST'])

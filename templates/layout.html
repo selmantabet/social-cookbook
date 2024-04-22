@@ -36,6 +36,9 @@
               <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('my_recipes') }}">My Recipes</a>
               </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('create_profile') }}">Create Profile</a>
+              </li>
               {% if show_search == True %}
               <form class="d-flex" method="POST" role="search">
                 {{ searchform.csrf_token }} {{ searchform.ingredients(class_='form-control
