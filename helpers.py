@@ -1,6 +1,58 @@
 import requests
+from flask import session
+from flask_login import current_user
+from flask_uploads import UploadSet, configure_uploads, IMAGES
+import json
+import os
+from app import db, app
 
 API_KEY = "4542ec46de1643b09c1f06550d95a510"
+
+# This method was based on the docs here- https://flask-uploads.readthedocs.io/en/latest/
+images = UploadSet('images', IMAGES)
+
+
+def update_settings():
+    settings = json.loads(current_user.settings_json)
+    if session.get("mode") is None:  # New account case
+        session['color_mode'] = 'light'
+    settings['color_mode'] = session['color_mode']
+    current_user.settings_json = json.dumps(settings)
+    db.session.commit()
+    return
+
+
+def load_settings(settings_json):
+    settings = json.loads(settings_json)
+    session.update(settings)
+    upload_dir = app.config["DEFAULT_UPLOAD_DEST"]
+    user_dir = os.path.join(upload_dir, str(current_user.id))
+    if not os.path.exists(user_dir):
+        os.makedirs(user_dir)
+    app.config["UPLOADED_IMAGES_DEST"] = user_dir
+    # The uploads will now be saved in the user's folder
+    configure_uploads(app, images)
+    return
+
+
+def clear_settings():
+    color_mode = session.get('color_mode')
+    session.clear()
+    session['color_mode'] = color_mode
+    app.config["UPLOADED_IMAGES_DEST"] = app.config["DEFAULT_UPLOAD_DEST"]
+    return
+
+
+def reset_user_settings(user):
+    settings = json.loads(user.settings_json)
+    defaults = {
+        "has_avatar": False,
+        "color_mode": "light"
+    }
+    settings.update(defaults)
+    user.settings_json = json.dumps(settings)
+    db.session.commit()
+    return
 
 
 def search_by_ingredients(ingredients):

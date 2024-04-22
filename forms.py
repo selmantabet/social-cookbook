@@ -1,7 +1,24 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileRequired
+from flask_wtf.file import FileAllowed
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, EqualTo, ValidationError, Regexp
 from models import User
+from helpers import images
+# This file check method was based on https://stackoverflow.com/a/67172432/11690953
+
+
+def FileSizeLimit(max_size_in_mb):
+    max_bytes = max_size_in_mb*1024*1024  # Convert MB to bytes
+
+    def file_length_check(form, field):
+        if field.data is None:
+            return
+        if len(field.data.read()) > max_bytes:
+            raise ValidationError(
+                f"File size must be less than {max_size_in_mb}MB")
+        field.data.seek(0)
+    return file_length_check
 
 
 class RegistrationForm(FlaskForm):
@@ -48,3 +65,9 @@ class RecipeForm(FlaskForm):
 class SearchForm(FlaskForm):
     ingredients = StringField('Ingredients', validators=[DataRequired()])
     submit = SubmitField('Search')
+
+
+class SettingsForm(FlaskForm):
+    avatar = FileField('Upload Avatar', validators=[
+                       FileRequired(), FileSizeLimit(max_size_in_mb=2), FileAllowed(images, 'Image files only!')], default=None)
+    submit = SubmitField('Save')

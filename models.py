@@ -35,4 +35,6 @@ class Recipe(db.Model):
     title = db.Column(db.String(255), nullable=False)
     ingredients = db.Column(db.Text, nullable=False)
     instructions = db.Column(db.Text, nullable=False)
+    image_file = db.Column(db.String(40), nullable=False,
+                           default='icon.jpeg')
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
