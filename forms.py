@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
 from flask_wtf.file import FileAllowed
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField, IntegerField
 from wtforms.validators import DataRequired, EqualTo, ValidationError, Regexp
 from models import User
 from helpers import images
@@ -59,6 +59,12 @@ class RecipeForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     ingredients = StringField('Ingredients', validators=[DataRequired()])
     instructions = StringField('Instructions', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
+
+class PantryForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    quantity = IntegerField('Quantity', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 

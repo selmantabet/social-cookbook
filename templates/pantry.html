@@ -1,0 +1,34 @@
+{% extends "layout.html" %} {% block content %}
+<form method="POST">
+  {{ form.csrf_token }}
+  <div class="form-group">
+    {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else
+    "") + " ", **{"placeholder": "Name", "aria-describedby": "nameHelp",
+    "autocomplete": "off"}) }}
+  </div>
+  <div class="form-group">
+    {{ form.quantity(class="form-control" + (" is-invalid" if
+    form.quantity.errors else "") + " ", **{"placeholder": "Quantity",
+    "aria-describedby": "quantityHelp", "autocomplete": "off"}) }}
+  </div>
+  <div class="form-group">
+    <label for="unit">Unit</label>
+    <select class="form-control" id="unit" name="unit" required>
+      <option value="g">g</option>
+      <option value="ml">ml</option>
+    </select>
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+<h1>My inventory</h1>
+<div class="container text-center">
+  {% for item in items %}
+  <div class="row align-items-start">
+    <div class="col">{{ item }}</div>
+    <div class="col">{{ items[item]["quantity"] }}</div>
+    <div class="col">{{ items[item]["unit"] }}</div>
+  </div>
+  {%endfor%}
+</div>
+{% endblock content %}

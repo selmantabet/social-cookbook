@@ -105,7 +105,7 @@ def create_profile():
     from helpers import CUISINES, ALLERGIES, DIETS, TASTES, DEFAULT_PROFILE
     prof = json.loads(current_user.food_profile)
     if prof != {} or len(prof) > 0:
-        initial_data = json.loads(current_user.food_profile)
+        initial_data = prof
     else:
         print("No profile found, using defaults.")
         initial_data = DEFAULT_PROFILE
@@ -147,9 +147,25 @@ def profile():
 @ app.route('/pantry', methods=['GET', 'POST'])
 @ login_required
 def pantry():
-    from helpers import load_settings
-    load_settings(current_user.settings_json)
-    return render_template('pantry.html')
+    from forms import PantryForm
+    form = PantryForm()
+    inventory = json.loads(current_user.inventory)
+    if form.validate_on_submit():
+        print("Pantry form submitted")
+        item = form.name.data
+        quantity = form.quantity.data
+        unit = request.form.get('unit')
+        if item in inventory:
+            flash('Item already in pantry', 'error')
+            return redirect(url_for('pantry'))
+        else:
+            inventory[item] = {"quantity": quantity, "unit": unit}
+            current_user.inventory = json.dumps(inventory)
+            db.session.commit()
+            flash('Item added to pantry', 'success')
+            return redirect(url_for('pantry'))
+
+    return render_template('pantry.html', items=inventory, form=form)
 
 
 @ app.route('/add_recipe', methods=['GET', 'POST'])
