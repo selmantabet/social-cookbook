@@ -84,7 +84,7 @@ def search_by_ingredients(ingredients):
 
     payload = {
         "ingredients": ingredients,
-        "ranking": 2
+        "ranking": 1
     }
     headers = {
         'x-api-key': API_KEY
