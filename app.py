@@ -103,8 +103,9 @@ def logout():
 @login_required
 def create_profile():
     from helpers import CUISINES, ALLERGIES, DIETS, TASTES, DEFAULT_PROFILE
-    if session.get("food_profile") is not None:
-        initial_data = session.get("food_profile")
+    prof = json.loads(current_user.food_profile)
+    if prof != {} or len(prof) > 0:
+        initial_data = json.loads(current_user.food_profile)
     else:
         print("No profile found, using defaults.")
         initial_data = DEFAULT_PROFILE
@@ -127,9 +128,7 @@ def create_profile():
             "diet": diet,
             "allergies": allergies
         }
-        settings = json.loads(current_user.settings_json)
-        settings['food_profile'] = session['food_profile']
-        current_user.settings_json = json.dumps(settings)
+        current_user.food_profile = json.dumps(session['food_profile'])
         db.session.commit()
         flash('Profile updated successfully', 'success')
         return redirect(url_for('index'))
