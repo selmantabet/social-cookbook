@@ -79,11 +79,13 @@ def search(query):
 def login():
     from models import User
     from forms import LoginForm
+    from helpers import load_settings
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user is not None and user.verify_password(form.password.data):
             login_user(user)
+            load_settings(current_user.settings_json)
             flash(f'You have successfully logged in, {current_user.username}!')
             print("Logged in!")
             return redirect(url_for('index'))
@@ -229,6 +231,21 @@ def delete_recipe(recipe_id):
         return redirect(url_for('my_recipes'))
 
     return render_template('delete_recipe.html', recipe=recipe)
+
+
+@app.route("/change_colour")
+def change_colour():
+    colour = session.get('colour_mode')
+    if colour is None:
+        session['colour_mode'] = 'dark'
+    else:
+        session['colour_mode'] = 'dark' if colour == 'light' else 'light'
+    if current_user.is_authenticated:
+        settings = json.loads(current_user.settings_json)
+        settings['colour_mode'] = session['colour_mode']
+        current_user.settings_json = json.dumps(settings)
+        db.session.commit()
+    return redirect(url_for('index'))
 
 
 if __name__ == '__main__':

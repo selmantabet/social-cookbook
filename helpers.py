@@ -38,9 +38,9 @@ images = UploadSet('images', IMAGES)
 
 def update_settings():
     settings = json.loads(current_user.settings_json)
-    if session.get("mode") is None:  # New account case
-        session['color_mode'] = 'light'
-    settings['color_mode'] = session['color_mode']
+    if session.get("colour_mode") is None:  # New account case
+        session['colour_mode'] = 'light'
+    settings['colour_mode'] = session['colour_mode']
     current_user.settings_json = json.dumps(settings)
     db.session.commit()
     return
@@ -60,7 +60,7 @@ def load_settings(settings_json):
 
 
 def clear_settings():
-    color_mode = session.get('color_mode')
+    color_mode = session.get('colour_mode')
     session.clear()
     session['color_mode'] = color_mode
     app.config["UPLOADED_IMAGES_DEST"] = app.config["DEFAULT_UPLOAD_DEST"]
@@ -71,7 +71,7 @@ def reset_user_settings(user):
     settings = json.loads(user.settings_json)
     defaults = {
         "has_avatar": False,
-        "color_mode": "light"
+        "colour_mode": "light"
     }
     settings.update(defaults)
     user.settings_json = json.dumps(settings)
