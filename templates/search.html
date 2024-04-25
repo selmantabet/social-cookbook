@@ -7,5 +7,7 @@
   <h2>{{result["title"]}}</h2>
   <img src="{{result.image}}" alt="" />
 </a>
+<p>{% for diet in result.diets %}/ {{diet}} /{% endfor %}</p>
+<p>{% for cuisine in result.cuisines %}/ {{cuisine}} /{% endfor %}</p>
 <hr />
 {%endfor %} {% endblock content %}
