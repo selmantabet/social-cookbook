@@ -51,19 +51,25 @@
                 me-2', placeholder='Ingredients') }}
                 <input class="btn btn-outline-success" type="submit"/>
               </form>
+              
               {% endif %}
+              
               <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('advancedsearch') }}"
+                    ><i class="fa-brands fa-searchengin"></i></a>
               </li>
               {% endif %}
               <li class="nav-item">
               {% if session['colour_mode'] == 'dark' %}
-                  <a class="nav-link" href="{{ url_for('change_colour') }}"
-                    >Light Mode  <i class="fa-solid fa-sun"></i
+                  <a title="Light Mode" class="nav-link" href="{{ url_for('change_colour') }}" 
+                    ><i class="fa-solid fa-sun"></i
                   ></a>
                 {% else %}
-                  <a class="nav-link" href="{{ url_for('change_colour') }}"
-                    >Dark Mode  <i class="fa-solid fa-moon"></i
+                  <a title="Dark Mode"  class="nav-link" href="{{ url_for('change_colour') }}"
+                    ><i class="fa-solid fa-moon"></i
                   ></a>
                 {% endif %}
               </li>

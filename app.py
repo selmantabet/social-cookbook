@@ -68,11 +68,48 @@ def search(query):
     return render_template('search.html', results=results, searchform=search_form, show_search=True)
 
 
-# @app.route('/search', methods=['GET', 'POST'])
-# def search():
-#     query = request.args.get('query')
-#     print("Search query: ", query)
-#     return render_template('search.html')
+@app.route('/advancedsearch', methods=['GET', 'POST'])
+@login_required
+def advancedsearch():
+    inventory = json.loads(current_user.inventory)
+    from helpers import CUISINES, ALLERGIES, DIETS, TASTES, DEFAULT_PROFILE, execute_advanced_search
+    prof = json.loads(current_user.food_profile)
+    if prof != {} or len(prof) > 0:
+        initial_data = prof
+    else:
+        print("No profile found, using defaults.")
+        initial_data = DEFAULT_PROFILE
+    if request.method == 'POST':
+        salty = request.form.get("salty")
+        spicy = request.form.get("spicy")
+        sour = request.form.get("sour")
+        sweet = request.form.get("sweet")
+        bitter = request.form.get("bitter")
+        fatty = request.form.get("fatty")
+        savory = request.form.get("savory")
+        diet = request.form.get('diet')
+        allergies = request.form.getlist('allergy')
+        cuisines = request.form.getlist('cuisine')
+        ingredients = request.form.getlist('ingredient')
+        parameters = {
+            "cuisines": cuisines,
+            "taste": {
+                "salty": salty, "spicy": spicy, "sour": sour, "sweet": sweet, "bitter": bitter, "fatty": fatty, "savory": savory
+            },
+            "diet": diet,
+            "allergies": allergies,
+            "ingredients": ingredients
+        }
+        results = execute_advanced_search(parameters)
+        print("Results: ", results)
+        return redirect(url_for('advanced_results', json=json.dumps(results)), code=307)
+    return render_template('advanced_search.html', inventory=inventory, cuisines=CUISINES, tastes=TASTES, diets=DIETS, allergies=ALLERGIES, initial_data=initial_data)
+
+
+@app.route('/advanced_results', methods=['POST'])
+@login_required
+def advanced_results():
+    return render_template('search.html', results=json.loads(request.args.get("json")).get('results'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -139,15 +176,15 @@ def create_profile():
 
 
 @app.route('/profile', methods=['GET', 'POST'])
-@ login_required
+@login_required
 def profile():
     from helpers import load_settings
     load_settings(current_user.settings_json)
     return render_template('profile.html')
 
 
-@ app.route('/pantry', methods=['GET', 'POST'])
-@ login_required
+@app.route('/pantry', methods=['GET', 'POST'])
+@login_required
 def pantry():
     from forms import PantryForm
     form = PantryForm()
@@ -170,8 +207,8 @@ def pantry():
     return render_template('pantry.html', items=inventory, form=form)
 
 
-@ app.route('/add_recipe', methods=['GET', 'POST'])
-@ login_required
+@app.route('/add_recipe', methods=['GET', 'POST'])
+@login_required
 def add_recipe():
     from models import Recipe
     from forms import RecipeForm
@@ -186,7 +223,7 @@ def add_recipe():
     return render_template('add_recipe.html', form=form)
 
 
-@ app.route('/result/<int:result_id>')
+@app.route('/result/<int:result_id>')
 def result(result_id):
     from helpers import search_by_recipe_id
     recipe = search_by_recipe_id(result_id)
@@ -196,7 +233,7 @@ def result(result_id):
     return render_template('result.html', recipe=recipe)
 
 
-@ app.route('/view_recipe/<int:recipe_id>', methods=['GET', 'POST'])
+@app.route('/view_recipe/<int:recipe_id>', methods=['GET', 'POST'])
 def view_recipe(recipe_id):
     from models import Recipe
     recipe = Recipe.query.get(recipe_id)
@@ -206,16 +243,16 @@ def view_recipe(recipe_id):
     return render_template('view_recipe.html', recipe=recipe)
 
 
-@ app.route('/my_recipes', methods=['GET', 'POST'])
-@ login_required
+@app.route('/my_recipes', methods=['GET', 'POST'])
+@login_required
 def my_recipes():
     from models import Recipe
     recipes = Recipe.query.filter_by(user_id=current_user.id)
     return render_template('my_recipes.html', recipes=recipes)
 
 
-@ app.route('/delete_recipe/<int:recipe_id>', methods=['GET', 'POST'])
-@ login_required
+@app.route('/delete_recipe/<int:recipe_id>', methods=['GET', 'POST'])
+@login_required
 def delete_recipe(recipe_id):
     from models import Recipe
     recipe = Recipe.query.get(recipe_id)

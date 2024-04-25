@@ -79,6 +79,45 @@ def reset_user_settings(user):
     return
 
 
+def extract_req_profile(request):
+    profile = {
+        "cuisines": request.form.getlist("cuisines"),
+        "taste": {
+            "salty": int(request.form.get("salty")),
+            "spicy": int(request.form.get("spicy")),
+            "sour": int(request.form.get("sour")),
+            "sweet": int(request.form.get("sweet")),
+            "bitter": int(request.form.get("bitter")),
+            "fatty": int(request.form.get("fatty")),
+            "savory": int(request.form.get("savory"))
+        },
+        "diet": request.form.get("diet"),
+        "allergies": request.form.getlist("allergies")
+    }
+    return profile
+
+
+def execute_advanced_search(params):
+    endpoint = "https://api.spoonacular.com/recipes/complexSearch"
+
+    payload = {
+        "query": ",".join(params.get("ingredients")),
+        "cuisine": ",".join(params.get("cuisines")),
+        "diet": params.get("diet"),
+        "intolerances": ",".join(params.get("allergies")),
+
+        "ranking": 1
+    }
+    headers = {
+        'x-api-key': API_KEY
+    }
+
+    response = requests.request(
+        "GET", endpoint, headers=headers, params=payload)
+    print("Payload:\n", payload)
+    return response.json()
+
+
 def search_by_ingredients(ingredients):
     endpoint = "https://api.spoonacular.com/recipes/findByIngredients"
 
