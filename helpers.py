@@ -70,11 +70,24 @@ def clear_settings():
 def reset_user_settings(user):
     settings = json.loads(user.settings_json)
     defaults = {
-        "has_avatar": False,
+        "has_dp": False,
         "colour_mode": "light"
     }
     settings.update(defaults)
     user.settings_json = json.dumps(settings)
+    db.session.commit()
+    return
+
+
+def clear_dp(user):
+    user.settings_json = json.dumps({"has_dp": False})
+    os.remove(os.path.join(app.config["UPLOADED_IMAGES_DEST"], "dp.jpg"))
+    db.session.commit()
+    return
+
+
+def clear_food_profile(user):
+    user.food_profile = json.dumps(DEFAULT_PROFILE)
     db.session.commit()
     return
 

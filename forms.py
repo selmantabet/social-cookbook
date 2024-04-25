@@ -74,6 +74,6 @@ class SearchForm(FlaskForm):
 
 
 class SettingsForm(FlaskForm):
-    avatar = FileField('Upload Avatar', validators=[
-                       FileRequired(), FileSizeLimit(max_size_in_mb=2), FileAllowed(images, 'Image files only!')], default=None)
+    dp = FileField('Upload display picture', validators=[
+        FileRequired(), FileSizeLimit(max_size_in_mb=2), FileAllowed(images, 'Only image files are allowed!')], default=None)
     submit = SubmitField('Save')
