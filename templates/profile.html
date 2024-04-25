@@ -36,6 +36,9 @@
         </form>
         <br />
       </div>
+      {% for error in settings.dp.errors %}
+      <span style="color: red">[{{ error }}]</span>
+      {% endfor %}
     </div>
     <div class="col-8">
       <form method="POST">
@@ -182,9 +185,5 @@
       </form>
     </div>
   </div>
-
-  {% for error in settings.dp.errors %}
-  <span style="color: red">[{{ error }}]</span>
-  {% endfor %}
 </div>
 {% endblock content %}

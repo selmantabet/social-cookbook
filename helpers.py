@@ -118,7 +118,7 @@ def execute_advanced_search(params):
         "cuisine": ",".join(params.get("cuisines")),
         "diet": params.get("diet"),
         "intolerances": ",".join(params.get("allergies")),
-
+        "addRecipeInformation": True,
         "ranking": 1
     }
     headers = {
@@ -127,6 +127,7 @@ def execute_advanced_search(params):
 
     response = requests.request(
         "GET", endpoint, headers=headers, params=payload)
+    print("Response: ", json.dumps(response.json()))
     return response.json()
 
 

@@ -9,7 +9,7 @@ class User(UserMixin, db.Model):
     hashed_password = db.Column(db.String(128), nullable=False)
     settings_json = db.Column(db.String(200), default="{}")
     food_profile = db.Column(db.String(200), default="{}")
-    inventory = db.Column(db.String(1000), default="{}")
+    inventory = db.Column(db.String(100000), default="{}")
     recipe = db.relationship(
         'Recipe', backref='user', lazy=True, cascade="all, delete")
 

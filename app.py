@@ -8,7 +8,7 @@ cwd = os.getcwd()
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///cookbook.db/'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'your_secret_key'
+app.config['SECRET_KEY'] = '3813c327b35448b0b33eba77abc89402'
 app.config['DEFAULT_UPLOAD_DEST'] = os.path.join(
     cwd, "static", "uploads")  # Constant
 # When the user logs on, the app will change the upload directory to the user's directory
@@ -18,6 +18,7 @@ app.config['ALLOWED_EXTENSIONS'] = set(['png', 'jpg', 'jpeg', 'gif'])
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+login_manager.init_app(app)
 
 
 @app.route('/index', methods=['GET', 'POST'])
@@ -29,7 +30,6 @@ def index():
         print("Search form submitted")
         query = ",".join(search_form.ingredients.data.split())
         return redirect(url_for('search', query=query))
-    from models import Recipe
     from helpers import random_recipes
     recipes = random_recipes()
     return render_template('index.html', recipes=recipes, searchform=search_form, show_search=True)
@@ -342,5 +342,3 @@ def change_colour():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-login_manager.init_app(app)
