@@ -101,15 +101,14 @@ def advancedsearch():
             "ingredients": ingredients
         }
         results = execute_advanced_search(parameters)
-        print("Results: ", results)
-        return redirect(url_for('advanced_results', json=json.dumps(results)), code=307)
+        return redirect(url_for('advanced_results', results=json.dumps(results)), code=307)
     return render_template('advanced_search.html', inventory=inventory, cuisines=CUISINES, tastes=TASTES, diets=DIETS, allergies=ALLERGIES, initial_data=initial_data)
 
 
 @app.route('/advanced_results', methods=['POST'])
 @login_required
 def advanced_results():
-    return render_template('search.html', results=json.loads(request.args.get("json")).get('results'))
+    return render_template('search.html', results=json.loads(request.args.get("results")).get('results'))
 
 
 @app.route('/login', methods=['GET', 'POST'])

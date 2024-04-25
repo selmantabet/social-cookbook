@@ -114,7 +114,6 @@ def execute_advanced_search(params):
 
     response = requests.request(
         "GET", endpoint, headers=headers, params=payload)
-    print("Payload:\n", payload)
     return response.json()
 
 
