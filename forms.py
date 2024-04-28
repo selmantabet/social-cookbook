@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
 from flask_wtf.file import FileAllowed
-from wtforms import IntegerRangeField, SelectField, SelectMultipleField, StringField, PasswordField, SubmitField, IntegerField, TextAreaField, FormField, FieldList
+from wtforms import IntegerRangeField, RadioField, SelectField, SelectMultipleField, StringField, PasswordField, SubmitField, IntegerField, TextAreaField, FormField, FieldList
 from wtforms.validators import DataRequired, EqualTo, ValidationError, Regexp
 from models import User
 from helpers import ALLERGY_VALUES, CUISINES, images
@@ -84,6 +84,7 @@ class RecipeForm(FlaskForm):
                                  DataRequired()])
     image = FileField('Upload image', validators=[
         FileRequired(), FileSizeLimit(max_size_in_mb=4), FileAllowed(images, 'Only image files are allowed!')], default=None)
+    public = RadioField('Visibility', choices=['Public', 'Private'])
     submit = SubmitField('Submit')
 
 

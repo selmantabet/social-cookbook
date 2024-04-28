@@ -270,25 +270,15 @@ def add_recipe():
     form = RecipeForm()
     if form.add_ingredient.data:
         form.ingredients.append_entry("")
-        # print("Form ingredients: ", form.ingredients)
-        # print("Form ingredients data: ", form.ingredients.data)
-        # print("Form ingredients length: ", len(form.ingredients))
-        # print("Ingredient form submitted")
     if form.validate_on_submit():
         recipe_ingredients = {}
         for ingredient in form.ingredients.data:
             recipe_ingredients[ingredient['name']] = {
                 "quantity": ingredient['quantity'], "unit": ingredient['unit']}
-        # print("Allergies: ", form.allergies.data)
-        # print("Recipe form submitted")
-        # print("Title: ", form.title.data)
-        # print("Ingredients: ", recipe_ingredients)
-        # print("Instructions: ", form.instructions.data)
-        print("Taste: ", form.taste.data)
         taste = form.taste.data
         taste.pop('csrf_token')
         recipe = Recipe(title=form.title.data, ingredients=json.dumps(recipe_ingredients),
-                        instructions=form.instructions.data, user_id=current_user.id, allergies=",".join(form.allergies.data), cuisines=",".join(form.cuisines.data), taste=json.dumps(taste))
+                        instructions=form.instructions.data, user_id=current_user.id, allergies=",".join(form.allergies.data), cuisines=",".join(form.cuisines.data), taste=json.dumps(taste), public=form.public.data)
         db.session.add(recipe)
         db.session.commit()
         if (form.image.data != '') and (form.image.data is not None):

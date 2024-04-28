@@ -5,7 +5,8 @@
   <div class="container">
     <div class="row">
       <div class="col">
-        <p>{{ form.title.label }} {{ form.title }}</p>
+        <h4>Recipe Title</h4>
+        <p>{{ form.title }}</p>
         <h2>Ingredients</h2>
         <p>{{ form.ingredients() }}</p>
         <p>{{ form.add_ingredient(formnovalidate=True) }}</p>
@@ -15,10 +16,16 @@
         <p>{{ form.instructions(cols="35", rows="20") }}</p>
       </div>
       <div class="col">
-        <p>{{ form.allergies.label }} {{ form.allergies }}</p>
-        <p>{{ form.cuisines.label }} {{ form.cuisines }}</p>
-        <p>{{ form.taste.label }} {{ form.taste }}</p>
-        <p>{{ form.image.label }} {{ form.image }}</p>
+        <h4>Allergies</h4>
+        <p>{{ form.allergies }}</p>
+        <h4>Cuisines</h4>
+        <p>{{ form.cuisines }}</p>
+        <h4>Taste Profile</h4>
+        <p>{{ form.taste }}</p>
+        <h4>Image upload</h4>
+        <p>{{ form.image }}</p>
+        <h4>Visibility</h4>
+        <p>{{ form.public }}</p>
         {% for error in form.image.errors %} {% if "size" in error %}
         <span style="color: red">[{{ error }}]</span>
         {% endif %} {% endfor %}
