@@ -172,9 +172,9 @@ def create_profile():
     return render_template('create_profile.html', cuisines=CUISINES, tastes=TASTES, diets=DIETS, allergies=ALLERGIES, initial_data=initial_data)
 
 
-@app.route('/profile', methods=['GET', 'POST'])
+@app.route('/account', methods=['GET', 'POST'])
 @login_required
-def profile():
+def account():
     from helpers import load_settings, images
     from forms import SettingsForm
     settings = SettingsForm()
@@ -183,7 +183,7 @@ def profile():
         from helpers import clear_dp
         clear_dp(current_user)
         flash('Display picture cleared!')
-        return redirect(url_for('profile'))
+        return redirect(url_for('account'))
     if settings.validate_on_submit():
         dp_dir = os.path.join(
             app.config["UPLOADED_IMAGES_DEST"], "dp.jpg")
@@ -199,9 +199,9 @@ def profile():
         else:
             flash("Upload failed.")
         flash('Display picture updated!')
-        return redirect(url_for('profile'))
+        return redirect(url_for('account'))
 
-    return render_template('profile.html', settings=settings)
+    return render_template('account.html', settings=settings)
 
 
 @app.route('/pantry', methods=['GET', 'POST'])
