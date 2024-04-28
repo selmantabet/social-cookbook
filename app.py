@@ -175,48 +175,20 @@ def create_profile():
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-    from helpers import CUISINES, ALLERGIES, DIETS, TASTES, DEFAULT_PROFILE, load_settings
+    from helpers import load_settings, images
     from forms import SettingsForm
     settings = SettingsForm()
     load_settings(current_user.settings_json)
-    prof = json.loads(current_user.food_profile)
-    if prof != {} or len(prof) > 0:
-        initial_data = prof
-    else:
-        print("No profile found, using defaults.")
-        initial_data = DEFAULT_PROFILE
-    if "food_profile" in request.form:
-        print("Profile update form submitted")
-        salty = request.form.get("salty")
-        spicy = request.form.get("spicy")
-        sour = request.form.get("sour")
-        sweet = request.form.get("sweet")
-        bitter = request.form.get("bitter")
-        fatty = request.form.get("fatty")
-        savory = request.form.get("savory")
-        diet = request.form.get('diet')
-        allergies = request.form.getlist('allergy')
-        cuisines = request.form.getlist('cuisine')
-        ingredients = request.form.getlist('ingredient')
-        parameters = {
-            "cuisines": cuisines,
-            "taste": {
-                "salty": salty, "spicy": spicy, "sour": sour, "sweet": sweet, "bitter": bitter, "fatty": fatty, "savory": savory
-            },
-            "diet": diet,
-            "allergies": allergies,
-            "ingredients": ingredients
-        }
-        current_user.food_profile = json.dumps(parameters)
-        db.session.commit()
-        flash('Taste profile updated successfully', 'success')
+    if "clear" in request.form:
+        from helpers import clear_dp
+        clear_dp(current_user)
+        flash('Display picture cleared!')
         return redirect(url_for('profile'))
-    elif ("update" in request.form) and (settings.validate_on_submit()):
+    if settings.validate_on_submit():
         dp_dir = os.path.join(
             app.config["UPLOADED_IMAGES_DEST"], "dp.jpg")
         if os.path.isfile(dp_dir):
             os.remove(dp_dir)
-        from helpers import images
         filename = images.save(settings.dp.data, name="dp.jpg")
         if filename is not None:
             settings = json.loads(current_user.settings_json)
@@ -228,12 +200,8 @@ def profile():
             flash("Upload failed.")
         flash('Display picture updated!')
         return redirect(url_for('profile'))
-    elif "clear" in request.form:
-        from helpers import clear_dp
-        clear_dp(current_user)
-        flash('Display picture cleared!')
-        return redirect(url_for('profile'))
-    return render_template('profile.html', settings=settings, cuisines=CUISINES, tastes=TASTES, diets=DIETS, allergies=ALLERGIES, initial_data=initial_data)
+
+    return render_template('profile.html', settings=settings)
 
 
 @app.route('/pantry', methods=['GET', 'POST'])
