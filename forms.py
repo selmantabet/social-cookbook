@@ -1,10 +1,10 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
 from flask_wtf.file import FileAllowed
-from wtforms import StringField, PasswordField, SubmitField, IntegerField
+from wtforms import IntegerRangeField, SelectField, SelectMultipleField, StringField, PasswordField, SubmitField, IntegerField, TextAreaField, FormField, FieldList
 from wtforms.validators import DataRequired, EqualTo, ValidationError, Regexp
 from models import User
-from helpers import images
+from helpers import ALLERGY_VALUES, CUISINES, images
 # This file check method was based on https://stackoverflow.com/a/67172432/11690953
 
 
@@ -55,10 +55,35 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 
+class IngredientForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    quantity = IntegerField('Quantity', validators=[DataRequired()])
+    unit = SelectField(
+        'Unit', choices=[('g', 'grams'), ('ml', 'ml'), ('piece', 'piece / unit')])
+
+
+class TasteForm(FlaskForm):
+    salty = IntegerRangeField('Salty', default=50)
+    spicy = IntegerRangeField('Spicy', default=50)
+    sour = IntegerRangeField('Sour', default=50)
+    sweet = IntegerRangeField('Sweet', default=50)
+    bitter = IntegerRangeField('Bitter', default=50)
+    fatty = IntegerRangeField('Fatty', default=50)
+    savory = IntegerRangeField('Savory', default=50)
+
+
 class RecipeForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
-    ingredients = StringField('Ingredients', validators=[DataRequired()])
-    instructions = StringField('Instructions', validators=[DataRequired()])
+    ingredients = FieldList(FormField(IngredientForm),
+                            min_entries=1)
+    add_ingredient = SubmitField('Add Ingredient')
+    allergies = SelectMultipleField('Allergies', choices=ALLERGY_VALUES)
+    cuisines = SelectMultipleField('Cuisines', choices=CUISINES)
+    taste = FormField(TasteForm)
+    instructions = TextAreaField('Instructions', validators=[
+                                 DataRequired()])
+    image = FileField('Upload image', validators=[
+        FileRequired(), FileSizeLimit(max_size_in_mb=4), FileAllowed(images, 'Only image files are allowed!')], default=None)
     submit = SubmitField('Submit')
 
 

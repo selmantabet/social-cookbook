@@ -1,12 +1,32 @@
 {% extends "layout.html" %} {% block content %}
-<h1>Welcome to the Sourced Cookbook!</h1>
 <h1>Add Recipe</h1>
-<form method="POST" action="">
+<form action="" method="POST" enctype="multipart/form-data">
   {{ form.csrf_token }}
-  <p>{{ form.title.label }} {{ form.title }}</p>
-  <p>{{ form.ingredients.label }} {{ form.ingredients }}</p>
-  <p>{{ form.instructions.label }} {{ form.instructions }}</p>
-  <input type="submit" value="Submit" />
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <p>{{ form.title.label }} {{ form.title }}</p>
+        <h2>Ingredients</h2>
+        <p>{{ form.ingredients() }}</p>
+        <p>{{ form.add_ingredient(formnovalidate=True) }}</p>
+      </div>
+      <div class="col">
+        <h2>Instructions</h2>
+        <p>{{ form.instructions(cols="35", rows="20") }}</p>
+      </div>
+      <div class="col">
+        <p>{{ form.allergies.label }} {{ form.allergies }}</p>
+        <p>{{ form.cuisines.label }} {{ form.cuisines }}</p>
+        <p>{{ form.taste.label }} {{ form.taste }}</p>
+        <p>{{ form.image.label }} {{ form.image }}</p>
+        {% for error in form.image.errors %} {% if "size" in error %}
+        <span style="color: red">[{{ error }}]</span>
+        {% endif %} {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <p><input type="submit" value="Submit" /></p>
 </form>
-<a href="{{ url_for('my_recipes') }}">Back to Recipes</a>
+
 {% endblock content %}

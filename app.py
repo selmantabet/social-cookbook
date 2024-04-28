@@ -45,8 +45,6 @@ def register():
         db.session.add(user)
         db.session.commit()
         flash('Registration successful! You can now log in.')
-        print(
-            f"Successful registration: {form.username.data} / {form.password.data}")
 
         return redirect(url_for('login'))
 
@@ -267,18 +265,51 @@ def pantry():
 def add_recipe():
     from models import Recipe
     from forms import RecipeForm
+    from helpers import load_settings
+    load_settings(current_user.settings_json)
     form = RecipeForm()
+    if form.add_ingredient.data:
+        form.ingredients.append_entry("")
+        # print("Form ingredients: ", form.ingredients)
+        # print("Form ingredients data: ", form.ingredients.data)
+        # print("Form ingredients length: ", len(form.ingredients))
+        # print("Ingredient form submitted")
     if form.validate_on_submit():
-        new_recipe = Recipe(
-            title=form.title.data, ingredients=form.ingredients.data, instructions=form.instructions.data, user_id=current_user.id)
-        db.session.add(new_recipe)
+        recipe_ingredients = {}
+        for ingredient in form.ingredients.data:
+            recipe_ingredients[ingredient['name']] = {
+                "quantity": ingredient['quantity'], "unit": ingredient['unit']}
+        # print("Allergies: ", form.allergies.data)
+        # print("Recipe form submitted")
+        # print("Title: ", form.title.data)
+        # print("Ingredients: ", recipe_ingredients)
+        # print("Instructions: ", form.instructions.data)
+        print("Taste: ", form.taste.data)
+        taste = form.taste.data
+        taste.pop('csrf_token')
+        recipe = Recipe(title=form.title.data, ingredients=json.dumps(recipe_ingredients),
+                        instructions=form.instructions.data, user_id=current_user.id, allergies=",".join(form.allergies.data), cuisines=",".join(form.cuisines.data), taste=json.dumps(taste))
+        db.session.add(recipe)
         db.session.commit()
+        if (form.image.data != '') and (form.image.data is not None):
+            new_recipe = Recipe.query.filter_by(
+                title=form.title.data, user_id=current_user.id).order_by(Recipe.id.desc()).first()  # Get the recipe that was just created
+        from helpers import images
+        import uuid
+        uuid_string = str(uuid.uuid4())
+        filename = images.save(form.image.data, name=uuid_string)
+        if filename is not None:
+            new_recipe.image_file = filename
+            db.session.commit()
+        else:
+            flash("Image upload failed.")
+            return redirect(url_for('index'))
         flash('Recipe added successfully', 'success')
         return redirect(url_for('index'))
     return render_template('add_recipe.html', form=form)
 
 
-@app.route('/result/<int:result_id>')
+@ app.route('/result/<int:result_id>')
 def result(result_id):
     from helpers import search_by_recipe_id
     recipe = search_by_recipe_id(result_id)
@@ -288,7 +319,7 @@ def result(result_id):
     return render_template('result.html', recipe=recipe)
 
 
-@app.route('/view_recipe/<int:recipe_id>', methods=['GET', 'POST'])
+@ app.route('/view_recipe/<int:recipe_id>', methods=['GET', 'POST'])
 def view_recipe(recipe_id):
     from models import Recipe
     recipe = Recipe.query.get(recipe_id)
@@ -298,16 +329,16 @@ def view_recipe(recipe_id):
     return render_template('view_recipe.html', recipe=recipe)
 
 
-@app.route('/my_recipes', methods=['GET', 'POST'])
-@login_required
+@ app.route('/my_recipes', methods=['GET', 'POST'])
+@ login_required
 def my_recipes():
     from models import Recipe
     recipes = Recipe.query.filter_by(user_id=current_user.id)
     return render_template('my_recipes.html', recipes=recipes)
 
 
-@app.route('/delete_recipe/<int:recipe_id>', methods=['GET', 'POST'])
-@login_required
+@ app.route('/delete_recipe/<int:recipe_id>', methods=['GET', 'POST'])
+@ login_required
 def delete_recipe(recipe_id):
     from models import Recipe
     recipe = Recipe.query.get(recipe_id)
@@ -325,7 +356,7 @@ def delete_recipe(recipe_id):
     return render_template('delete_recipe.html', recipe=recipe)
 
 
-@app.route("/change_colour")
+@ app.route("/change_colour")
 def change_colour():
     colour = session.get('colour_mode')
     if colour is None:
