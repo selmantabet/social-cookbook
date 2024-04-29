@@ -25,7 +25,7 @@
         <h4>Image upload</h4>
         <p>{{ form.image }}</p>
         <h4>Visibility</h4>
-        <p>{{ form.public }}</p>
+        <p>{{ form.visibility }}</p>
         {% for error in form.image.errors %} {% if "size" in error %}
         <span style="color: red">[{{ error }}]</span>
         {% endif %} {% endfor %}

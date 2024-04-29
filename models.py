@@ -12,8 +12,10 @@ class User(UserMixin, db.Model):
     settings_json = db.Column(db.String(200), default="{}")
     food_profile = db.Column(db.String(200), default="{}")
     inventory = db.Column(db.String(100000), default="{}")
-    recipe = db.relationship(
+    recipes = db.relationship(
         'Recipe', backref='user', lazy=True, cascade="all, delete")
+    comments = db.relationship(
+        'Comment', backref='user', lazy=True, cascade="all, delete")
 
     @property
     def password(self):
@@ -44,7 +46,7 @@ class Recipe(db.Model):
     taste = db.Column(db.String(255), nullable=False)
     image_file = db.Column(db.String(40), nullable=False,
                            default='icon.jpeg')
-    public = db.Column(db.String(40), nullable=False)
+    visibility = db.Column(db.String(40), nullable=False)
     rating = db.Column(db.String(255), nullable=False,
                        default=json.dumps({"upvotes": 0, "downvotes": 0}))
     comments = db.relationship(

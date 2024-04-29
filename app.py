@@ -172,6 +172,30 @@ def create_profile():
     return render_template('create_profile.html', cuisines=CUISINES, tastes=TASTES, diets=DIETS, allergies=ALLERGIES, initial_data=initial_data)
 
 
+@app.route('/profile/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+def profile(user_id):
+    from helpers import load_settings
+    load_settings(current_user.settings_json)
+    from models import User
+    user = User.query.get_or_404(user_id)
+    user_settings = json.loads(user.settings_json)
+    if user_settings.get('has_dp') is True:
+        dp = url_for('static', filename='uploads/' +
+                     str(user.id) + '/dp.jpg')
+    else:
+        dp = url_for('static', filename='default.jpg')
+    if user_id != current_user.id:
+        from models import Recipe
+        recipes = Recipe.query.filter_by(user_id=user_id, visibility='Public')
+    else:
+        recipes = current_user.recipes
+    comments = user.comments
+    profile = json.loads(user.food_profile)
+    has_taste = False if profile == {} or len(profile) == 0 else True
+    return render_template('profile.html', user=user, recipes=recipes, dp=dp, has_taste=has_taste, tastes=profile.get('taste'), comments=comments)
+
+
 @app.route('/account', methods=['GET', 'POST'])
 @login_required
 def account():
@@ -246,7 +270,7 @@ def add_recipe():
         taste = form.taste.data
         taste.pop('csrf_token')
         recipe = Recipe(title=form.title.data, ingredients=json.dumps(recipe_ingredients),
-                        instructions=form.instructions.data, user_id=current_user.id, allergies=",".join(form.allergies.data), cuisines=",".join(form.cuisines.data), taste=json.dumps(taste), public=form.public.data)
+                        instructions=form.instructions.data, user_id=current_user.id, allergies=",".join(form.allergies.data), cuisines=",".join(form.cuisines.data), taste=json.dumps(taste), visibility=form.visibility.data)
         db.session.add(recipe)
         db.session.commit()
         if (form.image.data != '') and (form.image.data is not None):
@@ -285,6 +309,11 @@ def view_recipe(recipe_id):
         flash('Recipe not found', 'error')
         return redirect(url_for('index'))
     return render_template('view_recipe.html', recipe=recipe)
+
+
+@ app.route('/view_external_recipe/<int:recipe_id>', methods=['GET', 'POST'])
+def view_external_recipe(recipe_id):
+    return render_template('view_external_recipe.html', recipe_id=recipe_id)
 
 
 @ app.route('/my_recipes', methods=['GET', 'POST'])

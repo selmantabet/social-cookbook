@@ -1,0 +1,46 @@
+{% extends "layout.html" %} {% block content %}
+<div class="container-fluid bg-secondary">
+  <img src="{{ dp }}" width="100" class="img-fluid" />
+  <h1>{{ user.username }} Profile</h1>
+</div>
+<div class="container text-center">
+    <div class="row align-items-start">
+      <div class="col">
+        <h3>Recipes</h3>
+{% for recipe in recipes %}
+<a href="{{url_for('view_recipe', recipe_id=recipe.id)}}">
+  <img
+    src="{{ url_for('static', filename= 'uploads/' + recipe.user_id|string + '/' + recipe.image_file) }}"
+    width="300"
+  />{% if recipe.user_id == current_user.id %}
+  <a href="{{url_for('delete_recipe', recipe_id=recipe.id)}}"
+    ><input type="submit" value="Delete"
+  /></a>
+  {% endif %}
+
+  <h4>{{recipe.title}}</a
+    ></h4>
+
+<hr />
+{% endfor %} 
+      </div>
+      {% if comments|length > 0 %}
+      <div class="col">
+        <h4>Comments</h4>
+        {% for comment in comments %}
+        <p>"{{ comment.content }}" on {{comment.recipe.title}}</p>
+        {% endfor %}
+      </div>
+        {% endif %}
+      {% if has_taste == True %}
+      <div class="col-2">
+        <h4>Taste Profile</h4>
+        {% for taste in tastes %}
+        <p>{{ taste }}</p>
+        <input type="range" class="form-range" min="0" max="100" value="{{ tastes[taste] }}" id="{{ taste }}" disabled>
+        {% endfor %}
+      </div>
+        {% endif %}
+    </div>
+  </div>
+{% endblock content %}

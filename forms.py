@@ -84,7 +84,7 @@ class RecipeForm(FlaskForm):
                                  DataRequired()])
     image = FileField('Upload image', validators=[
         FileRequired(), FileSizeLimit(max_size_in_mb=4), FileAllowed(images, 'Only image files are allowed!')], default=None)
-    public = RadioField('Visibility', choices=['Public', 'Private'])
+    visibility = RadioField('Visibility', choices=['Public', 'Private'])
     submit = SubmitField('Submit')
 
 
