@@ -1,9 +1,32 @@
 {% extends "layout.html" %} {% block content %}
-<div class="recipe-details">
-  <h1>{{ recipe.title }}</h1>
-  <h2 class="section-title">Ingredients</h2>
-  <p>{{ recipe.ingredients }}</p>
-  <h2 class="section-title">Instructions</h2>
-  <p>{{ recipe.instructions }}</p>
+
+<div class="container">
+  <div class="row align-items-start">
+    <div class="col">
+      <img
+        src="{{ url_for('static', filename= 'uploads/' + recipe.user_id|string + '/' + recipe.image_file) }}"
+        width="300"
+      />
+      <h1>{{ recipe.title }}</h1>
+
+      <h2 class="section-title">Ingredients</h2>
+      {% for ingredient in ingredients %}
+      <p>
+        <span
+          >{{ingredients[ingredient].quantity}}{{ingredients[ingredient].unit}}&ensp;{{ingredient}}</span
+        >
+      </p>
+      {% endfor %}
+      <h2 class="section-title">Instructions</h2>
+      <p>{{ recipe.instructions }}</p>
+    </div>
+    <div class="col-3">
+      <h2 class="section-title">Allergies</h2>
+      <p>{% for allergy in allergies %} {{allergy}} &ensp; {% endfor %}</p>
+      <h2 class="section-title">Cuisines</h2>
+      <p>{% for cuisine in cuisines %} {{cuisine}} &ensp; {% endfor %}</p>
+    </div>
+  </div>
 </div>
+
 {% endblock content %}

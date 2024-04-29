@@ -7,7 +7,7 @@
 {% for recipe in recipes %}
 <div class="recipe-details">
   <a
-    href="{{url_for('result', result_id=recipe.id)}}"
+    href="{{url_for('view_external_recipe', recipe_id=recipe.id)}}"
     target="_blank"
     rel="noopener noreferrer"
   >

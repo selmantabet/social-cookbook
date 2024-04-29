@@ -291,16 +291,6 @@ def add_recipe():
     return render_template('add_recipe.html', form=form)
 
 
-@ app.route('/result/<int:result_id>')
-def result(result_id):
-    from helpers import search_by_recipe_id
-    recipe = search_by_recipe_id(result_id)
-    if recipe is None:
-        flash('Recipe not found', 'error')
-        return redirect(url_for('index'))
-    return render_template('result.html', recipe=recipe)
-
-
 @ app.route('/view_recipe/<int:recipe_id>', methods=['GET', 'POST'])
 def view_recipe(recipe_id):
     from models import Recipe
@@ -308,12 +298,17 @@ def view_recipe(recipe_id):
     if recipe is None:
         flash('Recipe not found', 'error')
         return redirect(url_for('index'))
-    return render_template('view_recipe.html', recipe=recipe)
+    return render_template('view_recipe.html', recipe=recipe, ingredients=json.loads(recipe.ingredients), taste=json.loads(recipe.taste), allergies=recipe.allergies.split(','), cuisines=recipe.cuisines.split(','))
 
 
 @ app.route('/view_external_recipe/<int:recipe_id>', methods=['GET', 'POST'])
 def view_external_recipe(recipe_id):
-    return render_template('view_external_recipe.html', recipe_id=recipe_id)
+    from helpers import search_by_recipe_id
+    recipe = search_by_recipe_id(recipe_id)
+    if recipe is None:
+        flash('Recipe not found', 'error')
+        return redirect(url_for('index'))
+    return render_template('view_external_recipe.html', recipe=recipe)
 
 
 @ app.route('/my_recipes', methods=['GET', 'POST'])
