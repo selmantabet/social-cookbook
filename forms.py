@@ -103,3 +103,8 @@ class SettingsForm(FlaskForm):
     dp = FileField('Upload display picture', validators=[
         FileRequired(), FileSizeLimit(max_size_in_mb=2), FileAllowed(images, 'Only image files are allowed!')], default=None)
     submit = SubmitField('Save')
+
+
+class CommentForm(FlaskForm):
+    content = TextAreaField('Comment', validators=[DataRequired()])
+    submit = SubmitField('Submit')

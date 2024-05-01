@@ -293,12 +293,107 @@ def add_recipe():
 
 @ app.route('/view_recipe/<int:recipe_id>', methods=['GET', 'POST'])
 def view_recipe(recipe_id):
-    from models import Recipe
-    recipe = Recipe.query.get(recipe_id)
-    if recipe is None:
-        flash('Recipe not found', 'error')
-        return redirect(url_for('index'))
-    return render_template('view_recipe.html', recipe=recipe, ingredients=json.loads(recipe.ingredients), taste=json.loads(recipe.taste), allergies=recipe.allergies.split(','), cuisines=recipe.cuisines.split(','))
+    from models import Recipe, Vote
+    from forms import CommentForm
+    from helpers import DEFAULT_DP
+    recipe = Recipe.query.get_or_404(recipe_id)
+    comments = recipe.comments
+    votes = recipe.votes
+    print("Comments: ", comments)
+    print("Votes: ", type(votes))
+    user_vote = [vote for vote in votes if vote.user_id == current_user.id]
+    user_vote = user_vote[0] if len(user_vote) > 0 else None
+    print("User vote: ", user_vote)
+    likes = len([vote for vote in votes if vote.upvote])
+    dislikes = len(votes) - likes
+    assert len(votes) == json.loads(recipe.rating)[
+        'upvotes'] + json.loads(recipe.rating)['downvotes']
+    print("Likes: ", likes)
+    print("Dislikes: ", dislikes)
+
+    author_settings = json.loads(recipe.user.settings_json)
+    author_dp = url_for('static', filename='uploads/' +
+                        str(recipe.user.id) + '/dp.jpg') if author_settings.get("has_dp") else DEFAULT_DP
+    dps = []
+    for comment in comments:
+        user_settings = json.loads(comment.user.settings_json)
+        dp = url_for('static', filename='uploads/' +
+                     str(comment.user.id) + '/dp.jpg') if user_settings.get("has_dp") else DEFAULT_DP
+
+        dps.append(dp)
+    comments_and_dps = zip(comments, dps)
+
+    form = CommentForm()
+    if form.validate_on_submit():
+        from models import Comment
+        comment = Comment(content=form.content.data,
+                          user_id=current_user.id, recipe_id=recipe_id)
+        db.session.add(comment)
+        db.session.commit()
+        flash('Comment added successfully', 'success')
+        return redirect(url_for('view_recipe', recipe_id=recipe_id))
+    return render_template('view_recipe.html', recipe=recipe, author_dp=author_dp, ingredients=json.loads(recipe.ingredients), tastes=json.loads(recipe.taste), allergies=recipe.allergies.split(','), cuisines=recipe.cuisines.split(','), ratings=json.loads(recipe.rating), comments=comments_and_dps, form=form, user_vote=user_vote)
+
+
+@app.route('/upvote/<int:recipe_id>', methods=['GET', 'POST'])
+@ login_required
+def upvote(recipe_id):
+    from models import Recipe, Vote
+    vote = Vote.query.filter_by(user_id=current_user.id, recipe_id=recipe_id)
+    if vote.count() > 0:
+        if vote.first().upvote:
+            Recipe.query.get(recipe_id).rating = json.dumps(
+                {"upvotes": json.loads(Recipe.query.get(recipe_id).rating)['upvotes'] - 1, "downvotes": json.loads(Recipe.query.get(recipe_id).rating)['downvotes']})
+            vote.delete()
+            db.session.commit()
+            flash('Vote updated successfully', 'success')
+            return redirect(url_for('view_recipe', recipe_id=recipe_id))
+        else:
+            vote.first().upvote = True
+            Recipe.query.get(recipe_id).rating = json.dumps(
+                {"upvotes": json.loads(Recipe.query.get(recipe_id).rating)['upvotes'] + 1, "downvotes": json.loads(Recipe.query.get(recipe_id).rating)['downvotes'] - 1})
+            db.session.commit()
+            flash('Vote updated successfully', 'success')
+            return redirect(url_for('view_recipe', recipe_id=recipe_id))
+    recipe = Recipe.query.get_or_404(recipe_id)
+    ratings = json.loads(recipe.rating)
+    ratings['upvotes'] += 1
+    recipe.rating = json.dumps(ratings)
+    vote = Vote(user_id=current_user.id, recipe_id=recipe_id, upvote=True)
+    db.session.add(vote)
+    db.session.commit()
+    flash('Vote updated successfully', 'success')
+    return redirect(url_for('view_recipe', recipe_id=recipe_id))
+
+
+@app.route('/downvote/<int:recipe_id>', methods=['GET', 'POST'])
+def downvote(recipe_id):
+    from models import Recipe, Vote
+    vote = Vote.query.filter_by(user_id=current_user.id, recipe_id=recipe_id)
+    if vote.count() > 0:
+        if not vote.first().upvote:
+            Recipe.query.get(recipe_id).rating = json.dumps(
+                {"upvotes": json.loads(Recipe.query.get(recipe_id).rating)['upvotes'], "downvotes": json.loads(Recipe.query.get(recipe_id).rating)['downvotes'] - 1})
+            vote.delete()
+            db.session.commit()
+            flash('Vote updated successfully', 'success')
+            return redirect(url_for('view_recipe', recipe_id=recipe_id))
+        else:
+            vote.first().upvote = False
+            Recipe.query.get(recipe_id).rating = json.dumps(
+                {"upvotes": json.loads(Recipe.query.get(recipe_id).rating)['upvotes'] - 1, "downvotes": json.loads(Recipe.query.get(recipe_id).rating)['downvotes'] + 1})
+            db.session.commit()
+            flash('Vote updated successfully', 'success')
+            return redirect(url_for('view_recipe', recipe_id=recipe_id))
+    recipe = Recipe.query.get_or_404(recipe_id)
+    ratings = json.loads(recipe.rating)
+    ratings['downvotes'] += 1
+    recipe.rating = json.dumps(ratings)
+    vote = Vote(user_id=current_user.id, recipe_id=recipe_id, upvote=False)
+    db.session.add(vote)
+    db.session.commit()
+    flash('Vote updated successfully', 'success')
+    return redirect(url_for('view_recipe', recipe_id=recipe_id))
 
 
 @ app.route('/view_external_recipe/<int:recipe_id>', methods=['GET', 'POST'])
@@ -336,6 +431,21 @@ def delete_recipe(recipe_id):
         return redirect(url_for('my_recipes'))
 
     return render_template('delete_recipe.html', recipe=recipe)
+
+
+@app.route("/delete_comment/<int:comment_id>")
+@login_required
+def delete_comment(comment_id):
+    from models import Comment
+    comment = Comment.query.get_or_404(comment_id)
+    recipe_id = comment.recipe.id
+    if comment.user_id != current_user.id:
+        flash("You cannot delete this comment!")
+        return redirect(url_for('view_recipe', recipe_id=recipe_id))
+    db.session.delete(comment)
+    db.session.commit()
+    flash("Comment deleted!")
+    return redirect(url_for('view_recipe', recipe_id=recipe_id))
 
 
 @ app.route("/change_colour")

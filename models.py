@@ -16,6 +16,8 @@ class User(UserMixin, db.Model):
         'Recipe', backref='user', lazy=True, cascade="all, delete")
     comments = db.relationship(
         'Comment', backref='user', lazy=True, cascade="all, delete")
+    votes = db.relationship(
+        'Vote', backref='user', lazy=True, cascade="all, delete")
 
     @property
     def password(self):
@@ -32,8 +34,6 @@ class User(UserMixin, db.Model):
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
-
-# Your existing Recipe and db code
 
 
 class Recipe(db.Model):
@@ -52,6 +52,17 @@ class Recipe(db.Model):
     comments = db.relationship(
         'Comment', backref='recipe', lazy=True, cascade="all, delete")
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    votes = db.relationship(
+        'Vote', backref='recipe', lazy=True, cascade="all, delete")
+
+
+class Vote(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.DateTime, nullable=False, default=datetime.now())
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    recipe_id = db.Column(db.Integer, db.ForeignKey(
+        'recipe.id'), nullable=False)
+    upvote = db.Column(db.Boolean, nullable=False)
 
 
 class Comment(db.Model):

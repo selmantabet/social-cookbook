@@ -1,5 +1,5 @@
 import requests
-from flask import session
+from flask import session, url_for
 from flask_login import current_user
 from flask_uploads import UploadSet, configure_uploads, IMAGES
 import json
@@ -21,6 +21,7 @@ ALLERGY_TITLES = ["Peanut", "Dairy", "Soy", "Shellfish", "Seafood", "Egg", "Sulf
                   "Wheat"]
 ALLERGY_VALUES = ["peanut", "dairy", "soy", "shellfish", "seafood", "egg", "sulfite", "gluten", "sesame", "tree nut", "grain",
                   "wheat"]
+DEFAULT_DP = url_for('static', filename='default.jpg')
 DIETS = list(zip(DIET_TITLES, DIET_VALUES))
 TASTES = list(zip(TASTE_TITLES, TASTE_VALUES))
 ALLERGIES = list(zip(ALLERGY_TITLES, ALLERGY_VALUES))

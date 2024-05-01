@@ -13,10 +13,13 @@
       {% for ingredient in ingredients %}
       <p>
         <span
-          >{{ingredients[ingredient].quantity}}{{ingredients[ingredient].unit}}&ensp;{{ingredient}}</span
+          >{{ingredients[ingredient].quantity}}
+          {{ingredients[ingredient].unit}}&ensp;{{ingredient}}</span
         >
       </p>
       {% endfor %}
+    </div>
+    <div class="col">
       <h2 class="section-title">Instructions</h2>
       <p>{{ recipe.instructions }}</p>
     </div>
@@ -25,8 +28,68 @@
       <p>{% for allergy in allergies %} {{allergy}} &ensp; {% endfor %}</p>
       <h2 class="section-title">Cuisines</h2>
       <p>{% for cuisine in cuisines %} {{cuisine}} &ensp; {% endfor %}</p>
+      <h2 class="section-title">Ratings</h2>
+      <p>Upvotes: {{ ratings.upvotes }} Downvotes: {{ratings.downvotes}}</p>
+      <a href="{{ url_for('upvote', recipe_id = recipe.id) }}"
+        ><i class="fa fa-thumbs-up"></i
+      ></a>
+      <a href="{{ url_for('downvote', recipe_id = recipe.id) }}"
+        ><i class="fa fa-thumbs-down"></i
+      ></a>
+      <h4>Taste Profile</h4>
+      {% for taste in tastes %}
+      <p>{{ taste }}</p>
+      <input
+        type="range"
+        class="form-range"
+        min="0"
+        max="100"
+        value="{{ tastes[taste] }}"
+        id="{{ taste }}"
+        disabled
+      />
+      {% endfor %} {% if current_user.is_authenticated %} {% if current_user.id
+      == recipe.user_id %}
+      <form action="{{ url_for('delete_recipe', recipe_id=recipe.id) }}">
+        <input type="submit" class="btn btn-danger" value="Delete Recipe" />
+      </form>
+      {% endif %} {% endif %}
+      <hr />
     </div>
   </div>
 </div>
-
-{% endblock content %}
+<h2>Comments ({{ recipe.comments|length }})</h2>
+{% for comment in comments %}
+<div class="border border-primary rounded p-3">
+  <p>
+    <a href="{{ url_for('profile', user_id = comment[0].user_id) }}"
+      >{{ comment[0].user.username }}</a
+    > &nbsp <img
+    src="{{ comment[1] }}"
+    width="50"
+    class="img-fluid rounded"
+  />   <span class="container"> {{ comment[0].content }} </span>
+  {% if current_user.is_authenticated %}
+  {% if current_user.id == comment[0].user_id %}
+  <a href="{{ url_for('delete_comment', comment_id=comment[0].id) }}" class="btn btn-link">Delete Comment</a>
+  {% endif %}
+  {% endif %}
+</p>
+  
+<p title="{{ comment[0].date }}" class="text-end">posted on {{ comment[0].date }}</p>
+</div>
+</br>{% endfor %}{% if current_user.is_authenticated
+%}
+<form method="POST" action="">
+  {{ form.csrf_token }}
+  <div class="row g-3 align-items-center">
+    <div class="col-auto">{{ form.content.label(class__='form-label') }}</div>
+    <div class="col-auto">{{ form.content(class__='form-control') }}</div>
+    <div class="col-auto">
+      <input type="submit" class="btn btn-primary" value="Submit Comment" />
+    </div>
+  </div>
+</form>
+{% else %}
+<p><a href="{{ url_for('login') }}">Sign in</a> to add a comment.</p>
+{% endif %} {% endblock content %}
