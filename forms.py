@@ -72,6 +72,15 @@ class TasteForm(FlaskForm):
     savory = IntegerRangeField('Savory', default=50)
 
 
+class AdvancedSearchForm(FlaskForm):
+    ingredients = SelectMultipleField('Ingredients')
+    allergies = SelectMultipleField('Allergies', choices=ALLERGY_VALUES)
+    cuisines = SelectMultipleField('Cuisines', choices=CUISINES)
+    diet = SelectField('Diet', choices=list(zip(
+        DIET_VALUES, DIET_TITLES)))
+    submit = SubmitField('Search')
+
+
 class RecipeForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     ingredients = FieldList(FormField(IngredientForm),
@@ -86,8 +95,18 @@ class RecipeForm(FlaskForm):
         DataRequired()])
     image = FileField('Upload image', validators=[
         FileRequired(), FileSizeLimit(max_size_in_mb=4), FileAllowed(images, 'Only image files are allowed!')], default=None)
-    visibility = RadioField('Visibility', choices=['Public', 'Private'])
+    visibility = RadioField('Visibility', choices=[
+                            'Public', 'Private'], validators=[DataRequired()])
     submit = SubmitField('Submit')
+
+
+class TasteProfileForm(FlaskForm):
+    taste = FormField(TasteForm)
+    diet = SelectField('Diet', choices=list(zip(
+        DIET_VALUES, DIET_TITLES)))
+    allergies = SelectMultipleField('Allergies', choices=ALLERGY_VALUES)
+    cuisines = SelectMultipleField('Cuisines', choices=CUISINES)
+    submit = SubmitField('Save')
 
 
 class PantryForm(FlaskForm):

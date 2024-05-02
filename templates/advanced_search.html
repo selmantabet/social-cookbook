@@ -1,122 +1,23 @@
 {% extends "layout.html" %} {% block content %}
-<form method="POST">
-  {% for item in inventory %}
-  <div class="form-check">
-    <input
-      name="ingredient"
-      class="form-check-input"
-      type="checkbox"
-      value="{{ item }}"
-      id="{{ item }}"
-    />
-    <label class="form-check-label" for="{{ item }}"> {{ item }} </label>
-  </div>
-  {% endfor %}
-  <br />
-
-  <div class="container">
-    <div class="row align-items-center">
+<h1 class="text-center">Advanced Search</h1>
+<form action="" method="POST" enctype="multipart/form-data">
+  {{ form.csrf_token }}
+  <div class="container text-center">
+    <div class="row align-items-start">
       <div class="col">
-        <div class="form-group">
-          <label for="dietary-profile">Dietary Profile</label>
-          <div class="radio-group">
-            {% for diet in diets %}
-            <div class="form-check">
-              {% if initial_data["diet"] == diet[1] %}
-              <input
-                name="diet"
-                class="form-check-input"
-                type="radio"
-                id="{{diet[1]}}"
-                value="{{diet[1]}}"
-                checked
-              />
-              {% else %}
-              <input
-                name="diet"
-                class="form-check-input"
-                type="radio"
-                id="{{diet[1]}}"
-                value="{{diet[1]}}"
-              />
-              {% endif %}
-              <label class="form-check-label" for="{{diet[1]}}"
-                >{{diet[0]}}</label
-              >
-            </div>
-            {% endfor %}
-          </div>
-        </div>
+        <h4>Ingredients</h4>
+        <p>{{ form.ingredients }}</p>
+        <h4>Diet</h4>
+        <p>{{ form.diet }}</p>
       </div>
       <div class="col">
-        <div class="form-group">
-          <label for="cuisine">Cuisines</label>
-          <div class="checkbox-group">
-            {% for cuisine in cuisines %}
-            <div class="form-check">
-              {% if cuisine in initial_data["cuisines"] %}
-              <input
-                name="cuisine"
-                class="form-check-input"
-                type="checkbox"
-                id="{{cuisine}}"
-                value="{{cuisine}}"
-                checked
-              />
-              {% else %}
-              <input
-                name="cuisine"
-                class="form-check-input"
-                type="checkbox"
-                id="{{cuisine}}"
-                value="{{cuisine}}"
-              />
-              {% endif %}
-              <label class="form-check-label" for="{{cuisine}}"
-                >{{cuisine}}</label
-              >
-            </div>
-            {% endfor %}
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="form-group">
-          <label for="allergy">Allergies</label>
-          <div class="checkbox-group">
-            {% for allergy in allergies %}
-            <div class="form-check">
-              {% if allergy[1] in initial_data["allergies"] %}
-              <input
-                name="allergy"
-                class="form-check-input"
-                type="checkbox"
-                id="{{allergy[1]}}"
-                value="{{allergy[1]}}"
-                checked
-              />
-              {% else %}
-              <input
-                name="allergy"
-                class="form-check-input"
-                type="checkbox"
-                id="{{allergy[1]}}"
-                value="{{allergy[1]}}"
-              />
-              {% endif %}
-              <label class="form-check-label" for="{{allergy[1]}}"
-                >{{allergy[0]}}</label
-              >
-            </div>
-            {% endfor %}
-          </div>
-        </div>
+        <h4>Allergies</h4>
+        <p>{{ form.allergies }}</p>
+        <h4>Cuisines</h4>
+        <p>{{ form.cuisines }}</p>
       </div>
     </div>
+    {{ form.submit()}}
   </div>
-  <br /><br />
-
-  <button type="submit" class="btn btn-primary">Search</button>
 </form>
-
 {% endblock %}

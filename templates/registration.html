@@ -1,31 +1,43 @@
 {% extends "layout.html" %} {% block content %}
-<h1>Registration Page</h1>
-<form method="POST" action="">
-  {{ form.csrf_token }}
-  <p>
-    {{ form.username(class="form-control" + (" is-invalid" if
-    form.username.errors else "") + " ", **{"placeholder": "Username",
-    "aria-describedby": "userHelp", "autocomplete": "off"}) }} {% for error in
-    form.username.errors %}
-    <span style="color: red">[{{ error }}]</span>
-    {% endfor %}
-  </p>
-  <p>
-    {{ form.password(class="form-control" + (" is-invalid" if
-    form.password.errors else "") + " ", **{"placeholder": "Password",
-    "aria-describedby": "passwordHelp", "autocomplete": "off"}) }}
-  </p>
-  <p>
-    {{ form.confirm_password(class="form-control" + (" is-invalid" if
-    form.password.errors else "") + " ", **{"placeholder": "ConfirmPassword",
-    "aria-describedby": "confirmPasswordHelp", "autocomplete": "off"}) }}
-  </p>
-  {% for error in form.password.errors %}
-  <span style="color: red">[{{ error }}]</span>
-  {% endfor %}
-  <div>
-    <input type="submit" value="Register" />
+<div class="container text-center">
+  <div class="row align-items-start">
+    <div class="col"></div>
+    <div class="col-4">
+      <h1>Registration Page</h1>
+      <br />
+      <form method="POST" action="">
+        {{ form.csrf_token }}
+        <p>
+          {{ form.username(class="form-control" + (" is-invalid" if
+          form.username.errors else "") + " ", **{"placeholder": "Username",
+          "aria-describedby": "userHelp", "autocomplete": "off"}) }} {% for
+          error in form.username.errors %}
+          <span style="color: red">[{{ error }}]</span>
+          {% endfor %}
+        </p>
+        <p>
+          {{ form.password(class="form-control" + (" is-invalid" if
+          form.password.errors else "") + " ", **{"placeholder": "Password",
+          "aria-describedby": "passwordHelp", "autocomplete": "off"}) }}
+        </p>
+        <p>
+          {{ form.confirm_password(class="form-control" + (" is-invalid" if
+          form.password.errors else "") + " ", **{"placeholder":
+          "ConfirmPassword", "aria-describedby": "confirmPasswordHelp",
+          "autocomplete": "off"}) }}
+        </p>
+        {% for error in form.password.errors %}
+        <span style="color: red">[{{ error }}]</span>
+        {% endfor %}
+        <div>
+          <input type="submit" class="btn btn-primary" value="Register" />
+        </div>
+      </form>
+      <br />
+      <a href="{{ url_for('login') }}">Already have an account? Login here!</a>
+    </div>
+    <div class="col"></div>
   </div>
-</form>
-<a href="{{ url_for('login') }}">Already have an account? Login here!</a>
+</div>
+
 {% endblock content %}

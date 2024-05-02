@@ -35,6 +35,18 @@ def index():
     return render_template('index.html', recipes=recipes, searchform=search_form, show_search=True)
 
 
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+
+@app.route('/random')
+def random():
+    from helpers import random_recipes
+    recipes = random_recipes()
+    return render_template('random.html', recipes=recipes)
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     from models import User
@@ -70,37 +82,23 @@ def search(query):
 @login_required
 def advancedsearch():
     inventory = json.loads(current_user.inventory)
-    from helpers import CUISINES, ALLERGIES, DIETS, TASTES, DEFAULT_PROFILE, local_search
-    prof = json.loads(current_user.food_profile)
-    if prof != {} or len(prof) > 0:
-        initial_data = prof
-    else:
-        print("No profile found, using defaults.")
-        initial_data = DEFAULT_PROFILE
-    if request.method == 'POST':
-        salty = request.form.get("salty")
-        spicy = request.form.get("spicy")
-        sour = request.form.get("sour")
-        sweet = request.form.get("sweet")
-        bitter = request.form.get("bitter")
-        fatty = request.form.get("fatty")
-        savory = request.form.get("savory")
-        diet = request.form.get('diet')
-        allergies = request.form.getlist('allergy')
-        cuisines = request.form.getlist('cuisine')
-        ingredients = request.form.getlist('ingredient')
+    from forms import AdvancedSearchForm
+    form = AdvancedSearchForm()
+    form.ingredients.choices = [ingredient for ingredient in inventory.keys()]
+    if form.validate_on_submit():
+        diet = form.diet.data
+        allergies = form.allergies.data
+        cuisines = form.cuisines.data
+        ingredients = form.ingredients.data
         parameters = {
             "cuisines": cuisines,
-            "taste": {
-                "salty": salty, "spicy": spicy, "sour": sour, "sweet": sweet, "bitter": bitter, "fatty": fatty, "savory": savory
-            },
             "diet": diet,
             "allergies": allergies,
             "ingredients": ingredients
         }
-
+        print("Parameters via form: ", parameters)
         return redirect(url_for('advanced_results', parameters=json.dumps(parameters)))
-    return render_template('advanced_search.html', inventory=inventory, cuisines=CUISINES, tastes=TASTES, diets=DIETS, allergies=ALLERGIES, initial_data=initial_data)
+    return render_template('advanced_search.html', inventory=inventory, form=form)
 
 
 @app.route('/advanced_results/<string:parameters>', methods=['GET', 'POST'])
@@ -151,6 +149,7 @@ def create_profile():
     else:
         print("No profile found, using defaults.")
         initial_data = DEFAULT_PROFILE
+
     if request.method == 'POST':
         salty = request.form.get("salty")
         spicy = request.form.get("spicy")
@@ -256,6 +255,20 @@ def pantry():
             return redirect(url_for('pantry'))
 
     return render_template('pantry.html', items=inventory, form=form)
+
+
+@app.route('/delete_item/<string:item>', methods=['GET', 'POST'])
+@login_required
+def delete_item(item):
+    inventory = json.loads(current_user.inventory)
+    if item not in inventory:
+        flash('Item not found in pantry', 'error')
+        return redirect(url_for('pantry'))
+    del inventory[item]
+    current_user.inventory = json.dumps(inventory)
+    db.session.commit()
+    flash('Item removed from pantry', 'success')
+    return redirect(url_for('pantry'))
 
 
 @app.route('/add_recipe', methods=['GET', 'POST'])

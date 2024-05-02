@@ -34,7 +34,6 @@ DEFAULT_PROFILE = {
     "allergies": []
 }
 
-TASTE_DIFF_THRESHOLD = 20
 # This method was based on the docs here- https://flask-uploads.readthedocs.io/en/latest/
 images = UploadSet('images', IMAGES)
 
@@ -207,7 +206,7 @@ def random_recipes():
     endpoint = "https://api.spoonacular.com/recipes/random"
 
     payload = {
-        "number": 10
+        "number": 8
     }
     headers = {
         'x-api-key': API_KEY

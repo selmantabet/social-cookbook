@@ -1,26 +1,37 @@
 {% extends "layout.html" %} {% block content %}
-<h1>Login Page</h1>
-<form method="POST" action="">
-  {{ form.csrf_token }}
-  <p>
-    {{ form.username(class="form-control" + (" is-invalid" if
-    form.username.errors else "") + " ", **{"placeholder": "Username",
-    "aria-describedby": "userHelp", "autocomplete": "off"}) }}
-  </p>
-  <p>
-    {{ form.password(class="form-control" + (" is-invalid" if
-    form.password.errors else "") + " ", **{"placeholder": "Password",
-    "aria-describedby": "passwordHelp", "autocomplete": "off"}) }}
-  </p>
-  {% for error in form.password.errors %}
-  <span style="color: red">[{{ error }}]</span>
-  {% endfor %}
-  <div>
-    {% with messages = get_flashed_messages() %} {% if messages %} {% for
-    message in messages %} {% if message == "Invalid username or password." %}
-    <span style="color: red">[{{ message }}]</span>
-    {% endif %} {% endfor %} {% endif %} {% endwith %}
+<div class="container text-center">
+  <div class="row align-items-start">
+    <div class="col"></div>
+    <div class="col-3">
+      <h1>Login Page</h1>
+      <br />
+      <form method="POST" action="">
+        {{ form.csrf_token }}
+        <p>
+          {{ form.username(class="form-control" + (" is-invalid" if
+          form.username.errors else "") + " ", **{"placeholder": "Username",
+          "aria-describedby": "userHelp", "autocomplete": "off"}) }}
+        </p>
+        <p>
+          {{ form.password(class="form-control" + (" is-invalid" if
+          form.password.errors else "") + " ", **{"placeholder": "Password",
+          "aria-describedby": "passwordHelp", "autocomplete": "off"}) }}
+        </p>
+        {% for error in form.password.errors %}
+        <span style="color: red">[{{ error }}]</span>
+        {% endfor %}
+        <div>
+          {% with messages = get_flashed_messages() %} {% if messages %} {% for
+          message in messages %} {% if message == "Invalid username or
+          password." %}
+          <span style="color: red">[{{ message }}]</span>
+          {% endif %} {% endfor %} {% endif %} {% endwith %}
+        </div>
+        <p><input type="submit" class="btn btn-primary" value="Login" /></p>
+      </form>
+    </div>
+    <div class="col"></div>
   </div>
-  <p><input type="submit" value="Login" /></p>
-</form>
+</div>
+
 {% endblock content %}
