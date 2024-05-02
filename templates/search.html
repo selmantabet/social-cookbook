@@ -1,13 +1,39 @@
-{% extends "layout.html" %} {% block content %} {% for result in results %}
-<a
-  href="{{url_for('result', result_id=result.id)}}"
-  target="_blank"
-  rel="noopener noreferrer"
->
-  <h2>{{result["title"]}}</h2>
-  <img src="{{result.image}}" alt="" />
-</a>
-<p>{% for diet in result.diets %}/ {{diet}} /{% endfor %}</p>
-<p>{% for cuisine in result.cuisines %}/ {{cuisine}} /{% endfor %}</p>
-<hr />
-{%endfor %} {% endblock content %}
+{% extends "layout.html" %} {% block content %}
+<div class="container text-center">
+  <div class="row align-items-start">
+    <div class="col">
+      {% for result in external_results.results %}
+      <a
+        href="{{url_for('view_external_recipe', recipe_id=result.id)}}"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <h2>{{result["title"]}}</h2>
+        <img src="{{result.image}}" alt="" />
+      </a>
+      <p>{% for diet in result.diets %}/ {{diet}} /{% endfor %}</p>
+      <p>{% for cuisine in result.cuisines %}/ {{cuisine}} /{% endfor %}</p>
+      <hr />
+      {%endfor %}
+    </div>
+    <div class="col">
+      {% for result in ugc_results %}
+      <a
+        href="{{url_for('view_recipe', recipe_id=result)}}"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <h2>{{ugc_results[result]["title"]}}</h2>
+        <img
+          src="{{ url_for('static', filename= 'uploads/' + ugc_results[result].user_id|string + '/' + ugc_results[result].image_file) }}"
+          alt=""
+        />
+      </a>
+      <p>{{ugc_results[result].diet}}</p>
+      <p>{{ugc_results[result].cuisines}}</p>
+      <hr />
+      {%endfor %}
+    </div>
+  </div>
+</div>
+{% endblock content %}

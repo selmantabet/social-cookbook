@@ -8,7 +8,13 @@
         width="300"
       />
       <h1>{{ recipe.title }}</h1>
-
+      <a href="{{ url_for('profile', user_id=recipe.user_id)}}">
+      <p><img
+        src="{{ author_dp }}"
+        width="50"
+        class="img-fluid rounded"
+      /> {{ recipe.user.username}}</p>
+    </a>
       <h2 class="section-title">Ingredients</h2>
       {% for ingredient in ingredients %}
       <p>
@@ -24,6 +30,9 @@
       <p>{{ recipe.instructions }}</p>
     </div>
     <div class="col-3">
+
+      <h2>Diet</h2>
+      <p>{{diet}}</p>
       <h2 class="section-title">Allergies</h2>
       <p>{% for allergy in allergies %} {{allergy}} &ensp; {% endfor %}</p>
       <h2 class="section-title">Cuisines</h2>

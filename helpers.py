@@ -33,6 +33,8 @@ DEFAULT_PROFILE = {
     "diet": "omnivore",
     "allergies": []
 }
+
+TASTE_DIFF_THRESHOLD = 20
 # This method was based on the docs here- https://flask-uploads.readthedocs.io/en/latest/
 images = UploadSet('images', IMAGES)
 
@@ -128,7 +130,7 @@ def execute_advanced_search(params):
 
     response = requests.request(
         "GET", endpoint, headers=headers, params=payload)
-    print("Response: ", json.dumps(response.json()))
+    # print("Response: ", json.dumps(response.json()))
     return response.json()
 
 
@@ -147,6 +149,39 @@ def search_by_ingredients(ingredients):
         "GET", endpoint, headers=headers, params=payload)
 
     return response.json()
+
+
+def local_search(**params):
+    from models import Recipe
+    recipes = Recipe.query.all()
+    scored_recipes = []
+    for recipe in recipes:
+        ingredients = json.loads(recipe.ingredients)
+        taste = json.loads(recipe.taste)
+        allergies = recipe.allergies.split(",")
+        score = 0
+        for ingredient in ingredients:
+            if ingredient in params.get("ingredients"):
+                score += 1
+        for cuisine in params.get("cuisines"):
+            if cuisine in recipe.cuisines:
+                score += 1
+        if params.get("diet") == recipe.diet:
+            score += 1
+        for allergy in params.get("allergies"):
+            if allergy in allergies:
+                score -= 1
+        scored_recipes.append((recipe, score))
+    scored_recipes.sort(key=lambda x: x[1], reverse=True)
+    sorted_recipes = [recipe[0] for recipe in scored_recipes]
+    print(sorted_recipes)
+    result = {}
+    for i in sorted_recipes:
+        result[i.id] = i
+
+    print(result)
+    # json_result = json.dumps(result)
+    return result
 
 
 def search_by_recipe_id(recipe_id):

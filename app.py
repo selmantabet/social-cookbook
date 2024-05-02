@@ -70,7 +70,7 @@ def search(query):
 @login_required
 def advancedsearch():
     inventory = json.loads(current_user.inventory)
-    from helpers import CUISINES, ALLERGIES, DIETS, TASTES, DEFAULT_PROFILE, execute_advanced_search
+    from helpers import CUISINES, ALLERGIES, DIETS, TASTES, DEFAULT_PROFILE, local_search
     prof = json.loads(current_user.food_profile)
     if prof != {} or len(prof) > 0:
         initial_data = prof
@@ -98,15 +98,21 @@ def advancedsearch():
             "allergies": allergies,
             "ingredients": ingredients
         }
-        results = execute_advanced_search(parameters)
-        return redirect(url_for('advanced_results', results=json.dumps(results)), code=307)
+
+        return redirect(url_for('advanced_results', parameters=json.dumps(parameters)))
     return render_template('advanced_search.html', inventory=inventory, cuisines=CUISINES, tastes=TASTES, diets=DIETS, allergies=ALLERGIES, initial_data=initial_data)
 
 
-@app.route('/advanced_results', methods=['POST'])
+@app.route('/advanced_results/<string:parameters>', methods=['GET', 'POST'])
 @login_required
-def advanced_results():
-    return render_template('search.html', results=json.loads(request.args.get("results")).get('results'))
+def advanced_results(parameters):
+    params = json.loads(parameters)
+    from helpers import execute_advanced_search, local_search
+    external_results = execute_advanced_search(params)
+    ugc_results = local_search(**params)
+    print("External results: ", external_results)
+    print("UGC results: ", ugc_results)
+    return render_template('search.html', external_results=external_results, ugc_results=ugc_results)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -270,7 +276,7 @@ def add_recipe():
         taste = form.taste.data
         taste.pop('csrf_token')
         recipe = Recipe(title=form.title.data, ingredients=json.dumps(recipe_ingredients),
-                        instructions=form.instructions.data, user_id=current_user.id, allergies=",".join(form.allergies.data), cuisines=",".join(form.cuisines.data), taste=json.dumps(taste), visibility=form.visibility.data)
+                        instructions=form.instructions.data, user_id=current_user.id, allergies=",".join(form.allergies.data), cuisines=",".join(form.cuisines.data), taste=json.dumps(taste), visibility=form.visibility.data, diet=form.diet.data)
         db.session.add(recipe)
         db.session.commit()
         if (form.image.data != '') and (form.image.data is not None):
@@ -295,7 +301,7 @@ def add_recipe():
 def view_recipe(recipe_id):
     from models import Recipe, Vote
     from forms import CommentForm
-    from helpers import DEFAULT_DP
+    from helpers import DEFAULT_DP, DIET_TITLES, DIET_VALUES
     recipe = Recipe.query.get_or_404(recipe_id)
     comments = recipe.comments
     votes = recipe.votes
@@ -322,7 +328,7 @@ def view_recipe(recipe_id):
 
         dps.append(dp)
     comments_and_dps = zip(comments, dps)
-
+    diet = DIET_TITLES[DIET_VALUES.index(recipe.diet)]
     form = CommentForm()
     if form.validate_on_submit():
         from models import Comment
@@ -332,7 +338,7 @@ def view_recipe(recipe_id):
         db.session.commit()
         flash('Comment added successfully', 'success')
         return redirect(url_for('view_recipe', recipe_id=recipe_id))
-    return render_template('view_recipe.html', recipe=recipe, author_dp=author_dp, ingredients=json.loads(recipe.ingredients), tastes=json.loads(recipe.taste), allergies=recipe.allergies.split(','), cuisines=recipe.cuisines.split(','), ratings=json.loads(recipe.rating), comments=comments_and_dps, form=form, user_vote=user_vote)
+    return render_template('view_recipe.html', recipe=recipe, author_dp=author_dp, ingredients=json.loads(recipe.ingredients), tastes=json.loads(recipe.taste), allergies=recipe.allergies.split(','), cuisines=recipe.cuisines.split(','), ratings=json.loads(recipe.rating), diet=diet, comments=comments_and_dps, form=form, user_vote=user_vote)
 
 
 @app.route('/upvote/<int:recipe_id>', methods=['GET', 'POST'])
@@ -403,7 +409,7 @@ def view_external_recipe(recipe_id):
     if recipe is None:
         flash('Recipe not found', 'error')
         return redirect(url_for('index'))
-    return render_template('view_external_recipe.html', recipe=recipe)
+    return render_template('result.html', recipe=recipe)
 
 
 @ app.route('/my_recipes', methods=['GET', 'POST'])
