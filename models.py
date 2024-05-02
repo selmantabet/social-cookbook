@@ -44,6 +44,7 @@ class Recipe(db.Model):
     allergies = db.Column(db.String(255), nullable=False)
     cuisines = db.Column(db.String(255), nullable=False)
     taste = db.Column(db.String(255), nullable=False)
+    diet = db.Column(db.String(255), nullable=False)
     image_file = db.Column(db.String(40), nullable=False,
                            default='icon.jpeg')
     visibility = db.Column(db.String(40), nullable=False)
