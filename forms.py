@@ -4,7 +4,7 @@ from flask_wtf.file import FileAllowed
 from wtforms import IntegerRangeField, RadioField, SelectField, SelectMultipleField, StringField, PasswordField, SubmitField, IntegerField, TextAreaField, FormField, FieldList
 from wtforms.validators import DataRequired, EqualTo, ValidationError, Regexp
 from models import User
-from helpers import ALLERGY_VALUES, CUISINES, images
+from helpers import ALLERGY_VALUES, CUISINES, images, DIET_TITLES, DIET_VALUES
 # This file check method was based on https://stackoverflow.com/a/67172432/11690953
 
 
@@ -79,9 +79,11 @@ class RecipeForm(FlaskForm):
     add_ingredient = SubmitField('Add Ingredient')
     allergies = SelectMultipleField('Allergies', choices=ALLERGY_VALUES)
     cuisines = SelectMultipleField('Cuisines', choices=CUISINES)
+    diet = SelectField('Diet', choices=list(zip(
+        DIET_VALUES, DIET_TITLES)))
     taste = FormField(TasteForm)
     instructions = TextAreaField('Instructions', validators=[
-                                 DataRequired()])
+        DataRequired()])
     image = FileField('Upload image', validators=[
         FileRequired(), FileSizeLimit(max_size_in_mb=4), FileAllowed(images, 'Only image files are allowed!')], default=None)
     visibility = RadioField('Visibility', choices=['Public', 'Private'])
