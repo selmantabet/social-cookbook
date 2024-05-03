@@ -1,6 +1,7 @@
 {% extends "layout.html" %} {% block content %}
 
 <div class="container">
+  <hr>
   <div class="row align-items-start">
     <div class="col">
       <img
@@ -9,21 +10,25 @@
       />
       <h1>{{ recipe.title }}</h1>
       <a href="{{ url_for('profile', user_id=recipe.user_id)}}">
+        <hr>
       <p><img
         src="{{ author_dp }}"
         width="50"
         class="img-fluid rounded"
-      /> {{ recipe.user.username}}</p>
+      /> {{ recipe.user.username}}</p><hr>
     </a>
       <h2 class="section-title">Ingredients</h2>
+      <ul>
       {% for ingredient in ingredients %}
-      <p>
+      
+        <li>
         <span
           >{{ingredients[ingredient].quantity}}
           {{ingredients[ingredient].unit}}&ensp;{{ingredient}}</span
-        >
-      </p>
+        ></li>
+      
       {% endfor %}
+    </ul>
     </div>
     <div class="col">
       <h2 class="section-title">Instructions</h2>

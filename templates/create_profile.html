@@ -1,10 +1,13 @@
 {% extends 'layout.html' %} {% block content %}
+
 <form method="POST">
   <div class="container">
+    <hr />
     <div class="row align-items-center">
+      <div class="col-3"><h1 class="text-center">Food Preferences</h1></div>
       <div class="col">
         <div class="form-group">
-          <label for="dietary-profile">Dietary Profile</label>
+          <h4>Dietary Profile</h4>
           <div class="radio-group">
             {% for diet in diets %}
             <div class="form-check">
@@ -36,7 +39,7 @@
       </div>
       <div class="col">
         <div class="form-group">
-          <label for="cuisine">Cuisines</label>
+          <h4>Cuisines</h4>
           <div class="checkbox-group">
             {% for cuisine in cuisines %}
             <div class="form-check">
@@ -68,7 +71,7 @@
       </div>
       <div class="col">
         <div class="form-group">
-          <label for="allergy">Allergies</label>
+          <h4>Allergies</h4>
           <div class="checkbox-group">
             {% for allergy in allergies %}
             <div class="form-check">
@@ -100,44 +103,54 @@
       </div>
     </div>
   </div>
-  <br /><br />
-  <div class="form-group">
-    <label for="food-taste">Food Taste</label>
-    <div class="range-group">
-      {% for taste in tastes %}
-      <div class="form-range">
-        <div class="container text-center">
-          <div class="row align-items-start">
-            <div class="col-1">
-              <label class="form-check-label" for="{{taste[1]}}"
-                >{{taste[0]}}&ensp;&ensp;</label
-              >
+  <br />
+  <hr />
+  <br />
+
+  <div class="container text-center">
+    <div class="row align-items-center">
+      <div class="col-3"><h1 class="text-center">Food Taste</h1></div>
+      <div class="col-7">
+        <div class="form-group">
+          <div class="range-group">
+            {% for taste in tastes %}
+            <div class="form-range">
+              <div class="container text-center">
+                <div class="row align-items-start">
+                  <div class="col-1">
+                    <label class="form-check-label" for="{{taste[1]}}"
+                      >{{taste[0]}}&ensp;&ensp;</label
+                    >
+                  </div>
+                  <div class="col">
+                    {% if initial_data["taste"].get(taste[1]) %}
+                    <input
+                      name="{{taste[1]}}"
+                      type="range"
+                      class="form-range"
+                      id="tasteRange"
+                      value="{{ initial_data['taste'].get(taste[1])}}"
+                    />
+                    {% else %}
+                    <input
+                      name="{{taste[1]}}"
+                      type="range"
+                      class="form-range"
+                      id="tasteRange"
+                    />
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="col-11">
-              {% if initial_data["taste"].get(taste[1]) %}
-              <input
-                name="{{taste[1]}}"
-                type="range"
-                class="form-range"
-                id="tasteRange"
-                value="{{ initial_data['taste'].get(taste[1])}}"
-              />
-              {% else %}
-              <input
-                name="{{taste[1]}}"
-                type="range"
-                class="form-range"
-                id="tasteRange"
-              />
-              {% endif %}
-            </div>
+            {% endfor %}
           </div>
         </div>
       </div>
-      {% endfor %}
+      <div class="col-2">
+        <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+      </div>
     </div>
   </div>
-
-  <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 {% endblock %}

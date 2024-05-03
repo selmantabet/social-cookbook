@@ -7,6 +7,7 @@
     <div class="row align-items-start">
       <div class="col">
         <h3>Recipes</h3>
+        <hr>
 {% for recipe in recipes %}
 <a href="{{url_for('view_recipe', recipe_id=recipe.id)}}">
   <img
@@ -27,6 +28,7 @@
       {% if comments|length > 0 %}
       <div class="col">
         <h4>Comments</h4>
+        <hr>
         {% for comment in comments %}
         <p>"{{ comment.content }}" on <a href="{{url_for('view_recipe', recipe_id=comment.recipe.id)}}">{{comment.recipe.title}}</a> by {{comment.recipe.user.username}}</p>
         {% endfor %}
