@@ -40,11 +40,14 @@
       <h2 class="section-title">Ratings</h2>
       <p>Upvotes: {{ ratings.upvotes }} Downvotes: {{ratings.downvotes}}</p>
       <a href="{{ url_for('upvote', recipe_id = recipe.id) }}"
-        ><i class="fa fa-thumbs-up"></i
+        ><i class="fa fa-thumbs-up" style="color:{{'green' if user_vote.upvote }}"></i
       ></a>
       <a href="{{ url_for('downvote', recipe_id = recipe.id) }}"
-        ><i class="fa fa-thumbs-down"></i
+        ><i class="fa fa-thumbs-down" style="color:{{'red' if (user_vote != None) and (not user_vote.upvote)}}"></i
       ></a>
+      <a href="{{ url_for('bookmark', recipe_id = recipe.id) }}">
+        <i class="fa fa-bookmark" style="color:{{'gold' if user_bmark }}"></i>
+      </a>
       <h4>Taste Profile</h4>
       {% for taste in tastes %}
       <p>{{ taste }}</p>
@@ -58,10 +61,12 @@
         disabled
       />
       {% endfor %} {% if current_user.is_authenticated %} {% if current_user.id
-      == recipe.user_id %}
+      == recipe.user_id %} <hr>
+      <div class="text-center">
       <form action="{{ url_for('delete_recipe', recipe_id=recipe.id) }}">
         <input type="submit" class="btn btn-danger" value="Delete Recipe" />
       </form>
+    </div>
       {% endif %} {% endif %}
       <hr />
     </div>

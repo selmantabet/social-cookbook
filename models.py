@@ -18,6 +18,8 @@ class User(UserMixin, db.Model):
         'Comment', backref='user', lazy=True, cascade="all, delete")
     votes = db.relationship(
         'Vote', backref='user', lazy=True, cascade="all, delete")
+    bookmarks = db.relationship(
+        'Bookmark', backref='user', lazy=True, cascade="all, delete")
 
     @property
     def password(self):
@@ -55,6 +57,8 @@ class Recipe(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     votes = db.relationship(
         'Vote', backref='recipe', lazy=True, cascade="all, delete")
+    bookmarks = db.relationship(
+        'Bookmark', backref='recipe', lazy=True, cascade="all, delete")
 
 
 class Vote(db.Model):
@@ -73,3 +77,10 @@ class Comment(db.Model):
     recipe_id = db.Column(db.Integer, db.ForeignKey(
         'recipe.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+
+class Bookmark(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    recipe_id = db.Column(db.Integer, db.ForeignKey(
+        'recipe.id'), nullable=False)

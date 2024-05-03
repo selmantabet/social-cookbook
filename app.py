@@ -126,7 +126,13 @@ def login():
             load_settings(current_user.settings_json)
             flash(f'You have successfully logged in, {current_user.username}!')
             print("Logged in!")
-            return redirect(url_for('index'))
+            profile = json.loads(user.food_profile)
+            has_taste = False if profile == {} or len(profile) == 0 else True
+            if has_taste:
+                return redirect(url_for('index'))
+            else:
+                flash('Please create a food profile to get started.')
+                return redirect(url_for('create_profile'))
         flash('Invalid username or password.')
     return render_template('login.html', form=form)
 
@@ -323,6 +329,9 @@ def view_recipe(recipe_id):
     user_vote = [vote for vote in votes if vote.user_id == current_user.id]
     user_vote = user_vote[0] if len(user_vote) > 0 else None
     print("User vote: ", user_vote)
+    user_bmark = [
+        bmark for bmark in recipe.bookmarks if bmark.user_id == current_user.id]
+    user_bmark = user_bmark[0] if len(user_bmark) > 0 else None
     likes = len([vote for vote in votes if vote.upvote])
     dislikes = len(votes) - likes
     assert len(votes) == json.loads(recipe.rating)[
@@ -351,7 +360,34 @@ def view_recipe(recipe_id):
         db.session.commit()
         flash('Comment added successfully', 'success')
         return redirect(url_for('view_recipe', recipe_id=recipe_id))
-    return render_template('view_recipe.html', recipe=recipe, author_dp=author_dp, ingredients=json.loads(recipe.ingredients), tastes=json.loads(recipe.taste), allergies=recipe.allergies.split(','), cuisines=recipe.cuisines.split(','), ratings=json.loads(recipe.rating), diet=diet, comments=comments_and_dps, form=form, user_vote=user_vote)
+    return render_template('view_recipe.html', recipe=recipe, author_dp=author_dp, ingredients=json.loads(recipe.ingredients), tastes=json.loads(recipe.taste), allergies=recipe.allergies.split(','), cuisines=recipe.cuisines.split(','), ratings=json.loads(recipe.rating), diet=diet, comments=comments_and_dps, form=form, user_vote=user_vote, user_bmark=user_bmark)
+
+
+@ app.route('/bookmark/<int:recipe_id>', methods=['GET', 'POST'])
+@ login_required
+def bookmark(recipe_id):
+    from models import Bookmark
+    bookmark = Bookmark.query.filter_by(
+        user_id=current_user.id, recipe_id=recipe_id)
+    if bookmark.count() > 0:
+        bookmark.delete()
+        db.session.commit()
+        flash('Bookmark removed successfully', 'success')
+        return redirect(url_for('view_recipe', recipe_id=recipe_id))
+    bookmark = Bookmark(user_id=current_user.id, recipe_id=recipe_id)
+    db.session.add(bookmark)
+    db.session.commit()
+    flash('Bookmark added successfully', 'success')
+    return redirect(url_for('view_recipe', recipe_id=recipe_id))
+
+
+@app.route('/bookmarks', methods=['GET', 'POST'])
+@ login_required
+def bookmarks():
+    from models import Recipe, Bookmark
+    bookmarks = Bookmark.query.filter_by(user_id=current_user.id)
+    recipes = [Recipe.query.get(bmark.recipe_id) for bmark in bookmarks]
+    return render_template('bookmarks.html', recipes=recipes)
 
 
 @app.route('/upvote/<int:recipe_id>', methods=['GET', 'POST'])
