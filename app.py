@@ -458,7 +458,7 @@ def view_external_recipe(recipe_id):
     if recipe is None:
         flash('Recipe not found', 'error')
         return redirect(url_for('index'))
-    return render_template('result.html', recipe=recipe)
+    return render_template('view_external_recipe.html', recipe=recipe)
 
 
 @ app.route('/my_recipes', methods=['GET', 'POST'])
