@@ -14,7 +14,7 @@
     width="300"
   />{% if recipe.user_id == current_user.id %}
   <a href="{{url_for('delete_recipe', recipe_id=recipe.id)}}"
-    ><input type="submit" value="Delete"
+    ><input type="submit" value="Delete" class="btn btn-outline-warning"
   /></a>
   {% endif %}
 
@@ -28,7 +28,7 @@
       <div class="col">
         <h4>Comments</h4>
         {% for comment in comments %}
-        <p>"{{ comment.content }}" on {{comment.recipe.title}}</p>
+        <p>"{{ comment.content }}" on <a href="{{url_for('view_recipe', recipe_id=comment.recipe.id)}}">{{comment.recipe.title}}</a> by {{comment.recipe.user.username}}</p>
         {% endfor %}
       </div>
         {% endif %}

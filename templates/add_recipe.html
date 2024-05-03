@@ -6,28 +6,37 @@
     <div class="row">
       <div class="col">
         <h4>Recipe Title</h4>
-        <p>{{ form.title }}</p>
+        <p>
+          {{ form.title(class="form-control" + (" is-invalid" if
+          form.title.errors else "") + " ", **{"placeholder": "Title",
+          "aria-describedby": "titleHelp", "autocomplete": "off"}) }}
+        </p>
         <h2>Ingredients</h2>
-        <p>{{ form.ingredients() }}</p>
-        <p>{{ form.add_ingredient(formnovalidate=True) }}</p>
+        <p>{{ form.ingredients(class_="form-control") }}</p>
+        <p>
+          {{ form.add_ingredient(class_="btn btn-secondary",
+          formnovalidate=True) }}
+        </p>
       </div>
       <div class="col">
         <h2>Instructions</h2>
-        <p>{{ form.instructions(cols="35", rows="20") }}</p>
+        <p>
+          {{ form.instructions(class_="form-control", cols="35", rows="20") }}
+        </p>
       </div>
       <div class="col">
         <h4>Diet</h4>
-        <p>{{ form.diet }}</p>
+        <p>{{ form.diet(class_="form-control") }}</p>
         <h4>Allergies</h4>
-        <p>{{ form.allergies }}</p>
+        <p>{{ form.allergies(class_="form-control") }}</p>
         <h4>Cuisines</h4>
-        <p>{{ form.cuisines }}</p>
+        <p>{{ form.cuisines(class_="form-control") }}</p>
         <h4>Taste Profile</h4>
-        <p>{{ form.taste }}</p>
+        <p>{{ form.taste(class_="form-control") }}</p>
         <h4>Image upload</h4>
-        <p>{{ form.image }}</p>
+        <p>{{ form.image(class_="form-control") }}</p>
         <h4>Visibility</h4>
-        <p>{{ form.visibility }}</p>
+        <p>{{ form.visibility(class_="form-control") }}</p>
         {% for error in form.image.errors %} {% if "size" in error %}
         <span style="color: red">[{{ error }}]</span>
         {% endif %} {% endfor %}
@@ -35,7 +44,9 @@
     </div>
   </div>
 
-  <p><input type="submit" value="Submit" /></p>
+  <p class="text-center">
+    <input type="submit" value="Submit" class="btn btn-primary btn-lg" />
+  </p>
 </form>
 
 {% endblock content %}

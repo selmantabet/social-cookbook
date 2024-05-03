@@ -6,18 +6,18 @@
     <div class="row align-items-start">
       <div class="col">
         <h4>Ingredients</h4>
-        <p>{{ form.ingredients }}</p>
+        <p>{{ form.ingredients(class_="form-control") }}</p>
         <h4>Diet</h4>
-        <p>{{ form.diet }}</p>
+        <p>{{ form.diet(class_="form-control") }}</p>
       </div>
       <div class="col">
         <h4>Allergies</h4>
-        <p>{{ form.allergies }}</p>
+        <p>{{ form.allergies(class_="form-control") }}</p>
         <h4>Cuisines</h4>
-        <p>{{ form.cuisines }}</p>
+        <p>{{ form.cuisines(class_="form-control") }}</p>
       </div>
     </div>
-    {{ form.submit()}}
+    {{ form.submit(class_="btn btn-primary btn-lg")}}
   </div>
 </form>
 {% endblock %}
