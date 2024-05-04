@@ -4,6 +4,7 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 import os
 import json
 
+# Initial configuration
 cwd = os.getcwd()
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///cookbook.db/'
@@ -17,6 +18,7 @@ app.config['ALLOWED_EXTENSIONS'] = set(['png', 'jpg', 'jpeg', 'gif'])
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
+# Redirects to login page if user is not logged in
 login_manager.login_view = 'login'
 login_manager.init_app(app)
 
@@ -27,7 +29,6 @@ def index():
     from forms import SearchForm
     search_form = SearchForm()
     if search_form.validate_on_submit():
-        print("Search form submitted")
         query = ",".join(search_form.ingredients.data.split())
         return redirect(url_for('search', query=query))
     from helpers import random_recipes
@@ -69,10 +70,8 @@ def search(query):
     from forms import SearchForm
     search_form = SearchForm()
     if search_form.validate_on_submit():
-        print("Search form submitted")
         query = ",".join(search_form.ingredients.data.split())
         return redirect(url_for('search', query=query))
-    print("Search query: ", query)
     from helpers import search_by_ingredients
     results = search_by_ingredients(query)
     return render_template('search.html', results=results, searchform=search_form, show_search=True)
@@ -84,19 +83,16 @@ def advancedsearch():
     inventory = json.loads(current_user.inventory)
     from forms import AdvancedSearchForm
     form = AdvancedSearchForm()
+    # Load the user's inventory into the form
     form.ingredients.choices = [ingredient for ingredient in inventory.keys()]
     if form.validate_on_submit():
-        diet = form.diet.data
-        allergies = form.allergies.data
-        cuisines = form.cuisines.data
-        ingredients = form.ingredients.data
+        # Parse the form data into a parameter JSON object
         parameters = {
-            "cuisines": cuisines,
-            "diet": diet,
-            "allergies": allergies,
-            "ingredients": ingredients
+            "cuisines": form.cuisines.data,
+            "diet": form.diet.data,
+            "allergies": form.allergies.data,
+            "ingredients": form.ingredients.data
         }
-        print("Parameters via form: ", parameters)
         return redirect(url_for('advanced_results', parameters=json.dumps(parameters)))
     return render_template('advanced_search.html', inventory=inventory, form=form)
 
@@ -108,8 +104,6 @@ def advanced_results(parameters):
     from helpers import execute_advanced_search, local_search
     external_results = execute_advanced_search(params)
     ugc_results = local_search(**params)
-    print("External results: ", external_results)
-    print("UGC results: ", ugc_results)
     return render_template('search.html', external_results=external_results, ugc_results=ugc_results)
 
 
@@ -125,12 +119,11 @@ def login():
             login_user(user)
             load_settings(current_user.settings_json)
             flash(f'You have successfully logged in, {current_user.username}!')
-            print("Logged in!")
             profile = json.loads(user.food_profile)
             has_taste = False if profile == {} or len(profile) == 0 else True
-            if has_taste:
+            if has_taste:  # Load the user's food profile into the session
                 return redirect(url_for('index'))
-            else:
+            else:  # If the user has no food profile, redirect them to the profile creation page
                 flash('Please create a food profile to get started.')
                 return redirect(url_for('create_profile'))
         flash('Invalid username or password.')
@@ -153,28 +146,19 @@ def create_profile():
     if prof != {} or len(prof) > 0:
         initial_data = prof
     else:
-        print("No profile found, using defaults.")
         initial_data = DEFAULT_PROFILE
 
     if request.method == 'POST':
-        salty = request.form.get("salty")
-        spicy = request.form.get("spicy")
-        sour = request.form.get("sour")
-        sweet = request.form.get("sweet")
-        bitter = request.form.get("bitter")
-        fatty = request.form.get("fatty")
-        savory = request.form.get("savory")
-        diet = request.form.get('diet')
-        allergies = request.form.getlist('allergy')
-        cuisines = request.form.getlist('cuisine')
+        # Load the user's new food profile into the session
         session['food_profile'] = {
-            "cuisines": cuisines,
+            "cuisines": request.form.getlist('cuisine'),
             "taste": {
-                "salty": salty, "spicy": spicy, "sour": sour, "sweet": sweet, "bitter": bitter, "fatty": fatty, "savory": savory
+                "salty": request.form.get("salty"), "spicy": request.form.get("spicy"), "sour": request.form.get("sour"), "sweet": request.form.get("sweet"), "bitter": request.form.get("bitter"), "fatty": request.form.get("fatty"), "savory": request.form.get("savory")
             },
-            "diet": diet,
-            "allergies": allergies
+            "diet": request.form.get('diet'),
+            "allergies": request.form.getlist('allergy')
         }
+        # Save the user's food profile to the database
         current_user.food_profile = json.dumps(session['food_profile'])
         db.session.commit()
         flash('Profile updated successfully', 'success')
@@ -191,18 +175,18 @@ def profile(user_id):
     from models import User
     user = User.query.get_or_404(user_id)
     user_settings = json.loads(user.settings_json)
-    if user_settings.get('has_dp') is True:
+    if user_settings.get('has_dp') is True:  # Load the user's display picture
         dp = url_for('static', filename='uploads/' +
                      str(user.id) + '/dp.jpg')
     else:
         dp = url_for('static', filename='default.jpg')
-    if user_id != current_user.id:
+    if user_id != current_user.id:  # Filter out private recipes if the user is not the owner
         from models import Recipe
         recipes = Recipe.query.filter_by(user_id=user_id, visibility='Public')
     else:
         recipes = current_user.recipes
-    comments = user.comments
-    profile = json.loads(user.food_profile)
+    comments = user.comments  # Every comment the user has made
+    profile = json.loads(user.food_profile)  # The user's food profile
     has_taste = False if profile == {} or len(profile) == 0 else True
     return render_template('profile.html', user=user, recipes=recipes, dp=dp, has_taste=has_taste, tastes=profile.get('taste'), comments=comments)
 
@@ -222,10 +206,10 @@ def account():
     if settings.validate_on_submit():
         dp_dir = os.path.join(
             app.config["UPLOADED_IMAGES_DEST"], "dp.jpg")
-        if os.path.isfile(dp_dir):
+        if os.path.isfile(dp_dir):  # Replace the user's current display picture
             os.remove(dp_dir)
         filename = images.save(settings.dp.data, name="dp.jpg")
-        if filename is not None:
+        if filename is not None:  # Successfully uploaded
             settings = json.loads(current_user.settings_json)
             settings['has_dp'] = True
             session.update(settings)
@@ -246,7 +230,6 @@ def pantry():
     form = PantryForm()
     inventory = json.loads(current_user.inventory)
     if form.validate_on_submit():
-        print("Pantry form submitted")
         item = form.name.data
         quantity = form.quantity.data
         unit = request.form.get('unit')
@@ -286,24 +269,27 @@ def add_recipe():
     load_settings(current_user.settings_json)
     form = RecipeForm()
     if form.add_ingredient.data:
-        form.ingredients.append_entry("")
+        form.ingredients.append_entry("")  # Add a new ingredient field
     if form.validate_on_submit():
         recipe_ingredients = {}
         for ingredient in form.ingredients.data:
             recipe_ingredients[ingredient['name']] = {
                 "quantity": ingredient['quantity'], "unit": ingredient['unit']}
         taste = form.taste.data
-        taste.pop('csrf_token')
+        taste.pop('csrf_token')  # Not required for storage
         recipe = Recipe(title=form.title.data, ingredients=json.dumps(recipe_ingredients),
                         instructions=form.instructions.data, user_id=current_user.id, allergies=",".join(form.allergies.data), cuisines=",".join(form.cuisines.data), taste=json.dumps(taste), visibility=form.visibility.data, diet=form.diet.data)
         db.session.add(recipe)
         db.session.commit()
+        # Ensure that an image file was selected
         if (form.image.data != '') and (form.image.data is not None):
             new_recipe = Recipe.query.filter_by(
                 title=form.title.data, user_id=current_user.id).order_by(Recipe.id.desc()).first()  # Get the recipe that was just created
         from helpers import images
         import uuid
+        # Generate random unique string to prevent overwriting
         uuid_string = str(uuid.uuid4())
+        # Save the image to the user's directory
         filename = images.save(form.image.data, name=uuid_string)
         if filename is not None:
             new_recipe.image_file = filename
@@ -318,27 +304,17 @@ def add_recipe():
 
 @ app.route('/view_recipe/<int:recipe_id>', methods=['GET', 'POST'])
 def view_recipe(recipe_id):
-    from models import Recipe, Vote
+    from models import Recipe
     from forms import CommentForm
     from helpers import DEFAULT_DP, DIET_TITLES, DIET_VALUES
     recipe = Recipe.query.get_or_404(recipe_id)
     comments = recipe.comments
     votes = recipe.votes
-    print("Comments: ", comments)
-    print("Votes: ", type(votes))
     user_vote = [vote for vote in votes if vote.user_id == current_user.id]
     user_vote = user_vote[0] if len(user_vote) > 0 else None
-    print("User vote: ", user_vote)
     user_bmark = [
         bmark for bmark in recipe.bookmarks if bmark.user_id == current_user.id]
     user_bmark = user_bmark[0] if len(user_bmark) > 0 else None
-    likes = len([vote for vote in votes if vote.upvote])
-    dislikes = len(votes) - likes
-    assert len(votes) == json.loads(recipe.rating)[
-        'upvotes'] + json.loads(recipe.rating)['downvotes']
-    print("Likes: ", likes)
-    print("Dislikes: ", dislikes)
-
     author_settings = json.loads(recipe.user.settings_json)
     author_dp = url_for('static', filename='uploads/' +
                         str(recipe.user.id) + '/dp.jpg') if author_settings.get("has_dp") else DEFAULT_DP
@@ -369,7 +345,7 @@ def bookmark(recipe_id):
     from models import Bookmark
     bookmark = Bookmark.query.filter_by(
         user_id=current_user.id, recipe_id=recipe_id)
-    if bookmark.count() > 0:
+    if bookmark.count() > 0:  # If the user has already bookmarked the recipe, remove the bookmark
         bookmark.delete()
         db.session.commit()
         flash('Bookmark removed successfully', 'success')
@@ -395,15 +371,15 @@ def bookmarks():
 def upvote(recipe_id):
     from models import Recipe, Vote
     vote = Vote.query.filter_by(user_id=current_user.id, recipe_id=recipe_id)
-    if vote.count() > 0:
-        if vote.first().upvote:
+    if vote.count() > 0:  # If the user has already voted on the recipe
+        if vote.first().upvote:  # If the user has already upvoted the recipe, remove the upvote
             Recipe.query.get(recipe_id).rating = json.dumps(
                 {"upvotes": json.loads(Recipe.query.get(recipe_id).rating)['upvotes'] - 1, "downvotes": json.loads(Recipe.query.get(recipe_id).rating)['downvotes']})
             vote.delete()
             db.session.commit()
             flash('Vote updated successfully', 'success')
             return redirect(url_for('view_recipe', recipe_id=recipe_id))
-        else:
+        else:  # If the user has downvoted the recipe, change the vote to an upvote
             vote.first().upvote = True
             Recipe.query.get(recipe_id).rating = json.dumps(
                 {"upvotes": json.loads(Recipe.query.get(recipe_id).rating)['upvotes'] + 1, "downvotes": json.loads(Recipe.query.get(recipe_id).rating)['downvotes'] - 1})
@@ -425,15 +401,15 @@ def upvote(recipe_id):
 def downvote(recipe_id):
     from models import Recipe, Vote
     vote = Vote.query.filter_by(user_id=current_user.id, recipe_id=recipe_id)
-    if vote.count() > 0:
-        if not vote.first().upvote:
+    if vote.count() > 0:  # If the user has already voted on the recipe
+        if not vote.first().upvote:  # If the user has already downvoted the recipe, remove the downvote
             Recipe.query.get(recipe_id).rating = json.dumps(
                 {"upvotes": json.loads(Recipe.query.get(recipe_id).rating)['upvotes'], "downvotes": json.loads(Recipe.query.get(recipe_id).rating)['downvotes'] - 1})
             vote.delete()
             db.session.commit()
             flash('Vote updated successfully', 'success')
             return redirect(url_for('view_recipe', recipe_id=recipe_id))
-        else:
+        else:  # If the user has upvoted the recipe, change the vote to a downvote
             vote.first().upvote = False
             Recipe.query.get(recipe_id).rating = json.dumps(
                 {"upvotes": json.loads(Recipe.query.get(recipe_id).rating)['upvotes'] - 1, "downvotes": json.loads(Recipe.query.get(recipe_id).rating)['downvotes'] + 1})

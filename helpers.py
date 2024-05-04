@@ -6,6 +6,8 @@ import json
 import os
 from app import db, app
 
+
+# Some constants
 API_KEY = "4542ec46de1643b09c1f06550d95a510"
 CUISINES = ["African", "Asian", "American", "British", "Cajun", "Caribbean", "Chinese", "Eastern European", "European", "French", "German",
             "Greek", "Indian", "Irish", "Italian", "Japanese", "Jewish", "Korean", "Latin American", "Mediterranean", "Mexican", "Middle Eastern",
