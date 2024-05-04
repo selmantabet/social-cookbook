@@ -114,9 +114,11 @@ def login():
     from helpers import load_settings
     form = LoginForm()
     if form.validate_on_submit():
+        # Remember the user if the checkbox is checked
+        remember = True if request.form.get('remember') else False
         user = User.query.filter_by(username=form.username.data).first()
         if user is not None and user.verify_password(form.password.data):
-            login_user(user)
+            login_user(user, remember=remember)
             load_settings(current_user.settings_json)
             flash(f'You have successfully logged in, {current_user.username}!')
             profile = json.loads(user.food_profile)
