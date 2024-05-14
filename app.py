@@ -4,7 +4,7 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 import os
 import json
 
-# Initial configuration
+######## Initial configuration ########
 cwd = os.getcwd()
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///cookbook.db/'
@@ -17,6 +17,10 @@ app.config['UPLOADED_IMAGES_DEST'] = app.config['DEFAULT_UPLOAD_DEST']
 app.config['ALLOWED_EXTENSIONS'] = set(['png', 'jpg', 'jpeg', 'gif'])
 
 db = SQLAlchemy(app)
+#######################################
+
+##### Login manager configuration #####
+
 login_manager = LoginManager(app)
 # Redirects to login page if user is not logged in
 login_manager.login_view = 'login'
@@ -27,6 +31,10 @@ login_manager.init_app(app)
 def load_user(user_id):
     from models import User
     return User.query.get(int(user_id))
+
+#######################################
+
+######### Routes and views ############
 
 
 @app.route('/index', methods=['GET', 'POST'])
@@ -53,6 +61,8 @@ def random():
     recipes = random_recipes()
     return render_template('random.html', recipes=recipes)
 
+######### User Authentication Routes #########
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -68,6 +78,41 @@ def register():
         return redirect(url_for('login'))
 
     return render_template('registration.html', form=form)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    from models import User
+    from forms import LoginForm
+    from helpers import load_settings
+    form = LoginForm()
+    if form.validate_on_submit():
+        # Remember the user if the checkbox is checked
+        remember = True if request.form.get('remember') else False
+        user = User.query.filter_by(username=form.username.data).first()
+        if user is not None and user.verify_password(form.password.data):
+            login_user(user, remember=remember)
+            load_settings(current_user.settings_json)
+            flash(f'You have successfully logged in, {current_user.username}!')
+            profile = json.loads(user.food_profile)
+            has_taste = False if profile == {} or len(profile) == 0 else True
+            if has_taste:  # Load the user's food profile into the session
+                return redirect(url_for('index'))
+            else:  # If the user has no food profile, redirect them to the profile creation page
+                flash('Please create a food profile to get started.')
+                return redirect(url_for('create_profile'))
+        flash('Invalid username or password.')
+    return render_template('login.html', form=form)
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('Logout successful.', 'success')
+    return redirect(url_for('index'))
+
+################## Search Routes #################
 
 
 @app.route('/search/<string:query>', methods=['GET', 'POST'])
@@ -112,38 +157,7 @@ def advanced_results(parameters):
     ugc_results = local_search(**params)
     return render_template('search.html', external_results=external_results, ugc_results=ugc_results)
 
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    from models import User
-    from forms import LoginForm
-    from helpers import load_settings
-    form = LoginForm()
-    if form.validate_on_submit():
-        # Remember the user if the checkbox is checked
-        remember = True if request.form.get('remember') else False
-        user = User.query.filter_by(username=form.username.data).first()
-        if user is not None and user.verify_password(form.password.data):
-            login_user(user, remember=remember)
-            load_settings(current_user.settings_json)
-            flash(f'You have successfully logged in, {current_user.username}!')
-            profile = json.loads(user.food_profile)
-            has_taste = False if profile == {} or len(profile) == 0 else True
-            if has_taste:  # Load the user's food profile into the session
-                return redirect(url_for('index'))
-            else:  # If the user has no food profile, redirect them to the profile creation page
-                flash('Please create a food profile to get started.')
-                return redirect(url_for('create_profile'))
-        flash('Invalid username or password.')
-    return render_template('login.html', form=form)
-
-
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    flash('Logout successful.', 'success')
-    return redirect(url_for('index'))
+####### Profile and User-specific Routes #######
 
 
 @app.route('/create_profile', methods=['GET', 'POST'])
@@ -268,6 +282,8 @@ def delete_item(item):
     return redirect(url_for('pantry'))
 
 
+################ Recipe Management Routes ################
+
 @app.route('/add_recipe', methods=['GET', 'POST'])
 @login_required
 def add_recipe():
@@ -347,6 +363,43 @@ def view_recipe(recipe_id):
     return render_template('view_recipe.html', recipe=recipe, author_dp=author_dp, ingredients=json.loads(recipe.ingredients), tastes=json.loads(recipe.taste), allergies=recipe.allergies.split(','), cuisines=recipe.cuisines.split(','), ratings=json.loads(recipe.rating), diet=diet, comments=comments_and_dps, form=form, user_vote=user_vote, user_bmark=user_bmark)
 
 
+@ app.route('/view_external_recipe/<int:recipe_id>', methods=['GET', 'POST'])
+def view_external_recipe(recipe_id):
+    from helpers import search_by_recipe_id
+    recipe = search_by_recipe_id(recipe_id)
+    if recipe is None:
+        flash('Recipe not found', 'error')
+        return redirect(url_for('index'))
+    return render_template('view_external_recipe.html', recipe=recipe)
+
+
+@ app.route('/my_recipes', methods=['GET', 'POST'])
+@ login_required
+def my_recipes():
+    from models import Recipe
+    recipes = Recipe.query.filter_by(user_id=current_user.id)
+    return render_template('my_recipes.html', recipes=recipes)
+
+
+@ app.route('/delete_recipe/<int:recipe_id>', methods=['GET', 'POST'])
+@ login_required
+def delete_recipe(recipe_id):
+    from models import Recipe
+    recipe = Recipe.query.get(recipe_id)
+
+    if recipe is None:
+        flash('Recipe not found', 'error')
+        return redirect(url_for('index'))
+
+    if request.method == 'POST':
+        db.session.delete(recipe)
+        db.session.commit()
+        flash('Recipe deleted successfully', 'success')
+        return redirect(url_for('my_recipes'))
+
+    return render_template('delete_recipe.html', recipe=recipe)
+
+
 @ app.route('/bookmark/<int:recipe_id>', methods=['GET', 'POST'])
 @ login_required
 def bookmark(recipe_id):
@@ -372,6 +425,8 @@ def bookmarks():
     bookmarks = Bookmark.query.filter_by(user_id=current_user.id)
     recipes = [Recipe.query.get(bmark.recipe_id) for bmark in bookmarks]
     return render_template('bookmarks.html', recipes=recipes)
+
+######### Social Engagement Routes #########
 
 
 @app.route('/upvote/<int:recipe_id>', methods=['GET', 'POST'])
@@ -433,43 +488,6 @@ def downvote(recipe_id):
     db.session.commit()
     flash('Vote updated successfully', 'success')
     return redirect(url_for('view_recipe', recipe_id=recipe_id))
-
-
-@ app.route('/view_external_recipe/<int:recipe_id>', methods=['GET', 'POST'])
-def view_external_recipe(recipe_id):
-    from helpers import search_by_recipe_id
-    recipe = search_by_recipe_id(recipe_id)
-    if recipe is None:
-        flash('Recipe not found', 'error')
-        return redirect(url_for('index'))
-    return render_template('view_external_recipe.html', recipe=recipe)
-
-
-@ app.route('/my_recipes', methods=['GET', 'POST'])
-@ login_required
-def my_recipes():
-    from models import Recipe
-    recipes = Recipe.query.filter_by(user_id=current_user.id)
-    return render_template('my_recipes.html', recipes=recipes)
-
-
-@ app.route('/delete_recipe/<int:recipe_id>', methods=['GET', 'POST'])
-@ login_required
-def delete_recipe(recipe_id):
-    from models import Recipe
-    recipe = Recipe.query.get(recipe_id)
-
-    if recipe is None:
-        flash('Recipe not found', 'error')
-        return redirect(url_for('index'))
-
-    if request.method == 'POST':
-        db.session.delete(recipe)
-        db.session.commit()
-        flash('Recipe deleted successfully', 'success')
-        return redirect(url_for('my_recipes'))
-
-    return render_template('delete_recipe.html', recipe=recipe)
 
 
 @app.route("/delete_comment/<int:comment_id>")
