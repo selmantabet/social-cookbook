@@ -23,6 +23,7 @@ ALLERGY_TITLES = ["Peanut", "Dairy", "Soy", "Shellfish", "Seafood", "Egg", "Sulf
                   "Wheat"]
 ALLERGY_VALUES = ["peanut", "dairy", "soy", "shellfish", "seafood", "egg", "sulfite", "gluten", "sesame", "tree nut", "grain",
                   "wheat"]
+# Default DP from an icon on https://www.speechandlearning.com/sabrina-arizmendez
 DEFAULT_DP = url_for('static', filename='default.jpg')
 DIETS = list(zip(DIET_TITLES, DIET_VALUES))
 TASTES = list(zip(TASTE_TITLES, TASTE_VALUES))
