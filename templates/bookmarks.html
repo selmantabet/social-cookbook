@@ -17,7 +17,8 @@
           {% if recipe.image_file %}
           <img
             src="{{ url_for('static', filename= 'uploads/' + recipe.user_id|string + '/' + recipe.image_file) }}"
-            alt="{{ recipe.title }}"
+            alt="Picture of {{ recipe.title }}"
+            title="{{ recipe.title }}"
           />
           <a href="{{url_for('bookmark', recipe_id=recipe.id)}}"
             ><input

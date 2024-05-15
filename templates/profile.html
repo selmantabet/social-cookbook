@@ -1,6 +1,6 @@
 {% extends "layout.html" %} {% block content %}
 <div class="container-fluid bg-secondary rounded">
-  <img src="{{ dp }}" width="100" class="img-fluid rounded-circle" />
+  <img src="{{ dp }}" width="100" class="img-fluid rounded-circle" alt="Profile Picture of {{user.username}}" title="Profile Picture"/>
   <h1>{{ user.username }} Profile</h1>
 </div>
 <div class="container text-center">
@@ -13,6 +13,8 @@
   <img
     src="{{ url_for('static', filename= 'uploads/' + recipe.user_id|string + '/' + recipe.image_file) }}"
     width="300"
+    alt="Picture of {{ recipe.title }}"
+    title="{{ recipe.title }}"
   />{% if recipe.user_id == current_user.id %}
   <a href="{{url_for('delete_recipe', recipe_id=recipe.id)}}"
     ><input type="submit" value="Delete" class="btn btn-outline-warning"

@@ -11,7 +11,12 @@
         rel="noopener noreferrer"
       >
         <h2>{{result["title"]}}</h2>
-        <img src="{{result.image}}" alt="" width="300" />
+        <img
+          src="{{result.image}}"
+          alt="Picture of {{result.title}}"
+          title="{{result.title}}"
+          width="300"
+        />
       </a>
       <p>{% for diet in result.diets %}/ {{diet}} /{% endfor %}</p>
       <p>{% for cuisine in result.cuisines %}/ {{cuisine}} /{% endfor %}</p>

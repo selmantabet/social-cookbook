@@ -17,6 +17,8 @@
         src="{{ author_dp }}"
         width="50"
         class="img-fluid rounded"
+        alt="Profile Picture of {{ recipe.user.username }}"
+        title="Author's Profile Picture"
       /> {{ recipe.user.username}}</p><hr>
     </a>
       <h2 class="section-title">Ingredients</h2>
@@ -103,6 +105,8 @@
     src="{{ comment[1] }}"
     width="50"
     class="img-fluid rounded"
+    alt="Profile Picture of {{ comment[0].user.username }}"
+    title="Profile Picture of {{ comment[0].user.username }}"
   />   <span class="container"> {{ comment[0].content }} </span>
   {% if current_user.is_authenticated %}
   {% if current_user.id == comment[0].user_id %}
