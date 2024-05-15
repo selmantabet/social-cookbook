@@ -1,9 +1,11 @@
 {% extends "layout.html" %}{% block content %} {% if session['colour_mode'] ==
 'light' %}
+<!-- Light mode picture from https://esmmpreventdiabetes.com/5-essential-rules-of-cooking/ -->
 <body
   style="background-image: url({{url_for('static', filename='Home-light.jpg')}})"
 >
   {% else %}
+  <!-- Dark mode picture from https://www.pickpik.com/variety-food-tray-summer-cheese-platter-75259 -->
   <body
     style="background-image: url({{url_for('static', filename='Home.jpg')}})"
   >
