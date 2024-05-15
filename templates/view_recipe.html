@@ -20,13 +20,27 @@
       <h2 class="section-title">Ingredients</h2>
       <ul>
       {% for ingredient in ingredients %}
-      
+      {% if current_user.is_authenticated %}
+      {% if ingredient.lower() in pantry %}
+        <li style="color: rgb(86, 142, 1);">
+        <span
+          >{{ingredients[ingredient].quantity}}
+          {{ingredients[ingredient].unit}}&ensp;{{ingredient}}</span
+        ></li>
+      {% else %}
+        <li style="color: red;">
+        <span
+          >{{ingredients[ingredient].quantity}}
+          {{ingredients[ingredient].unit}}&ensp;{{ingredient}}</span
+        ></li>
+      {% endif %}
+      {% else %}
         <li>
         <span
           >{{ingredients[ingredient].quantity}}
           {{ingredients[ingredient].unit}}&ensp;{{ingredient}}</span
         ></li>
-      
+      {% endif %}
       {% endfor %}
     </ul>
     </div>

@@ -116,15 +116,26 @@ def extract_req_profile(request):
 
 def execute_advanced_search(params):
     endpoint = "https://api.spoonacular.com/recipes/complexSearch"
+    payload = {}
+    if params.get("ingredients") is None:
+        payload["query"] = ""
+    else:
+        payload["query"] = ",".join(params.get("ingredients"))
 
-    payload = {
-        "query": ",".join(params.get("ingredients")),
-        "cuisine": ",".join(params.get("cuisines")),
-        "diet": params.get("diet"),
-        "intolerances": ",".join(params.get("allergies")),
-        "addRecipeInformation": True,
-        "ranking": 1
-    }
+    if params.get("cuisines") is None:
+        payload["cuisine"] = ""
+    else:
+        payload["cuisine"] = ",".join(params.get("cuisines"))
+
+    if params.get("allergies") is None:
+        payload["intolerances"] = ""
+    else:
+        payload["intolerances"] = ",".join(params.get("allergies"))
+
+    payload["diet"] = params.get("diet")
+    payload["addRecipeInformation"] = True
+    payload["ranking"] = 1
+
     headers = {
         'x-api-key': API_KEY
     }
@@ -158,21 +169,24 @@ def local_search(**params):
     scored_recipes = []
     for recipe in recipes:
         ingredients = json.loads(recipe.ingredients)
-        taste = json.loads(recipe.taste)
         allergies = recipe.allergies.split(",")
         score = 0
-        for ingredient in ingredients:
-            if ingredient in params.get("ingredients"):
-                score += 1
-        for cuisine in params.get("cuisines"):
-            if cuisine in recipe.cuisines:
-                score += 1
+        if ingredients is not None:
+            for ingredient in ingredients:
+                if ingredient in params.get("ingredients"):
+                    score += 1
+        if params.get("cuisines") is not None:
+            for cuisine in params.get("cuisines"):
+                if cuisine in recipe.cuisines:
+                    score += 1
         if params.get("diet") == recipe.diet:
             score += 1
-        for allergy in params.get("allergies"):
-            if allergy in allergies:
-                score -= 1
-        scored_recipes.append((recipe, score))
+        if params.get("allergies") is not None:
+            for allergy in params.get("allergies"):
+                if allergy in allergies:
+                    score -= 1
+        if score > 0:
+            scored_recipes.append((recipe, score))
     scored_recipes.sort(key=lambda x: x[1], reverse=True)
     sorted_recipes = [recipe[0] for recipe in scored_recipes]
     print(sorted_recipes)

@@ -17,7 +17,7 @@ app.config['UPLOADED_IMAGES_DEST'] = app.config['DEFAULT_UPLOAD_DEST']
 app.config['ALLOWED_EXTENSIONS'] = set(['png', 'jpg', 'jpeg', 'gif'])
 
 db = SQLAlchemy(app)
-#######################################
+
 
 ##### Login manager configuration #####
 
@@ -32,7 +32,6 @@ def load_user(user_id):
     from models import User
     return User.query.get(int(user_id))
 
-#######################################
 
 ######### Routes and views ############
 
@@ -43,16 +42,14 @@ def index():
     from forms import SearchForm
     search_form = SearchForm()
     if search_form.validate_on_submit():
-        query = ",".join(search_form.ingredients.data.split())
-        return redirect(url_for('search', query=query))
+        query = search_form.ingredients.data.split()
+        parameters = {
+            "ingredients": query
+        }
+        return redirect(url_for('advanced_results', parameters=json.dumps(parameters)))
     from helpers import random_recipes
     recipes = random_recipes()
     return render_template('index.html', recipes=recipes, searchform=search_form, show_search=True)
-
-
-@app.route('/about')
-def about():
-    return render_template('about.html')
 
 
 @app.route('/random')
@@ -332,12 +329,20 @@ def view_recipe(recipe_id):
     from forms import CommentForm
     from helpers import DEFAULT_DP, DIET_TITLES, DIET_VALUES
     recipe = Recipe.query.get_or_404(recipe_id)
-    comments = recipe.comments
     votes = recipe.votes
-    user_vote = [vote for vote in votes if vote.user_id == current_user.id]
+    if current_user.is_authenticated:
+        pantry = list(json.loads(current_user.inventory).keys())
+        pantry = list(map(lambda x: x.lower(), pantry))
+        user_vote = [vote for vote in votes if vote.user_id == current_user.id]
+        user_bmark = [
+            bmark for bmark in recipe.bookmarks if bmark.user_id == current_user.id]
+    else:
+        pantry = []
+        user_vote = []
+        user_bmark = []
+    print("Pantry", pantry)
+    comments = recipe.comments
     user_vote = user_vote[0] if len(user_vote) > 0 else None
-    user_bmark = [
-        bmark for bmark in recipe.bookmarks if bmark.user_id == current_user.id]
     user_bmark = user_bmark[0] if len(user_bmark) > 0 else None
     author_settings = json.loads(recipe.user.settings_json)
     author_dp = url_for('static', filename='uploads/' +
@@ -360,7 +365,7 @@ def view_recipe(recipe_id):
         db.session.commit()
         flash('Comment added successfully', 'success')
         return redirect(url_for('view_recipe', recipe_id=recipe_id))
-    return render_template('view_recipe.html', recipe=recipe, author_dp=author_dp, ingredients=json.loads(recipe.ingredients), tastes=json.loads(recipe.taste), allergies=recipe.allergies.split(','), cuisines=recipe.cuisines.split(','), ratings=json.loads(recipe.rating), diet=diet, comments=comments_and_dps, form=form, user_vote=user_vote, user_bmark=user_bmark)
+    return render_template('view_recipe.html', recipe=recipe, author_dp=author_dp, ingredients=json.loads(recipe.ingredients), tastes=json.loads(recipe.taste), allergies=recipe.allergies.split(','), cuisines=recipe.cuisines.split(','), ratings=json.loads(recipe.rating), diet=diet, comments=comments_and_dps, form=form, user_vote=user_vote, user_bmark=user_bmark, pantry=pantry)
 
 
 @ app.route('/view_external_recipe/<int:recipe_id>', methods=['GET', 'POST'])
@@ -370,7 +375,12 @@ def view_external_recipe(recipe_id):
     if recipe is None:
         flash('Recipe not found', 'error')
         return redirect(url_for('index'))
-    return render_template('view_external_recipe.html', recipe=recipe)
+    if current_user.is_authenticated:
+        pantry = list(json.loads(current_user.inventory).keys())
+        pantry = list(map(lambda x: x.lower(), pantry))
+    else:
+        pantry = []
+    return render_template('view_external_recipe.html', recipe=recipe, pantry=pantry)
 
 
 @ app.route('/my_recipes', methods=['GET', 'POST'])
@@ -461,6 +471,7 @@ def upvote(recipe_id):
 
 
 @app.route('/downvote/<int:recipe_id>', methods=['GET', 'POST'])
+@ login_required
 def downvote(recipe_id):
     from models import Recipe, Vote
     vote = Vote.query.filter_by(user_id=current_user.id, recipe_id=recipe_id)

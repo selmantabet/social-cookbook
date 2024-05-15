@@ -14,9 +14,15 @@
       <h2 class="section-title">Ingredients</h2>
       <ul class="ingredient-list">
         <!-- Loop through each ingredient in the recipe's extendedIngredients -->
-        {% for ingredient in recipe.extendedIngredients %}
+        {% for ingredient in recipe.extendedIngredients %} {% if
+        current_user.is_authenticated %} {% if ingredient.name.lower() in pantry
+        %}
+        <li style="color: rgb(86, 142, 1)">{{ ingredient.original }}</li>
+        {% else %}
+        <li style="color: red">{{ ingredient.original }}</li>
+        {% endif %} {% else %}
         <li>{{ ingredient.original }}</li>
-        {% endfor %}
+        {% endif %} {% endfor %}
       </ul>
     </div>
     <div class="col">

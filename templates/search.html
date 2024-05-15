@@ -11,7 +11,7 @@
         rel="noopener noreferrer"
       >
         <h2>{{result["title"]}}</h2>
-        <img src="{{result.image}}" alt="" />
+        <img src="{{result.image}}" alt="" width="300" />
       </a>
       <p>{% for diet in result.diets %}/ {{diet}} /{% endfor %}</p>
       <p>{% for cuisine in result.cuisines %}/ {{cuisine}} /{% endfor %}</p>
@@ -31,6 +31,7 @@
         <img
           src="{{ url_for('static', filename= 'uploads/' + ugc_results[result].user_id|string + '/' + ugc_results[result].image_file) }}"
           alt=""
+          width="300"
         />
       </a>
       <p>{{ugc_results[result].diet}}</p>
