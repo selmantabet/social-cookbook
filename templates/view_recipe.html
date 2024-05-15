@@ -7,6 +7,8 @@
       <img
         src="{{ url_for('static', filename= 'uploads/' + recipe.user_id|string + '/' + recipe.image_file) }}"
         width="300"
+        title="{{ recipe.title }}"
+        alt="Picture of {{ recipe.title }}"
       />
       <h1>{{ recipe.title }}</h1>
       <a href="{{ url_for('profile', user_id=recipe.user_id)}}">
@@ -18,17 +20,17 @@
       /> {{ recipe.user.username}}</p><hr>
     </a>
       <h2 class="section-title">Ingredients</h2>
-      <ul>
+      <ul class="fa-ul">
       {% for ingredient in ingredients %}
       {% if current_user.is_authenticated %}
       {% if ingredient.lower() in pantry %}
-        <li style="color: rgb(86, 142, 1);">
+        <li><span class="fa-li"><i class="fa-solid fa-check" title="Found in pantry" style="color: rgb(86, 142, 1);"></i></span>
         <span
           >{{ingredients[ingredient].quantity}}
           {{ingredients[ingredient].unit}}&ensp;{{ingredient}}</span
         ></li>
       {% else %}
-        <li style="color: red;">
+        <li><span class="fa-li"><i class="fa-solid fa-x" title="Not found in pantry" style="color: red;"></i></span>
         <span
           >{{ingredients[ingredient].quantity}}
           {{ingredients[ingredient].unit}}&ensp;{{ingredient}}</span

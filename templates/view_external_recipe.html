@@ -3,7 +3,11 @@
   <hr />
   <div class="row align-items-start">
     <div class="col">
-      <img src="{{ recipe.image}}" alt="{{ recipe.title }}" />
+      <img
+        src="{{ recipe.image}}"
+        title="{{ recipe.title }}"
+        alt="Picture of {{ recipe.title }}"
+      />
       <h1>{{ recipe.title }}</h1>
       <hr />
       <p>
@@ -12,14 +16,32 @@
 
       <hr />
       <h2 class="section-title">Ingredients</h2>
-      <ul class="ingredient-list">
+      <ul class="ingredient-list fa-ul">
         <!-- Loop through each ingredient in the recipe's extendedIngredients -->
         {% for ingredient in recipe.extendedIngredients %} {% if
         current_user.is_authenticated %} {% if ingredient.name.lower() in pantry
         %}
-        <li style="color: rgb(86, 142, 1)">{{ ingredient.original }}</li>
+        <li>
+          <span class="fa-li"
+            ><i
+              class="fa-solid fa-check"
+              title="Found in pantry"
+              style="color: rgb(86, 142, 1)"
+            ></i
+          ></span>
+          {{ ingredient.original }}
+        </li>
         {% else %}
-        <li style="color: red">{{ ingredient.original }}</li>
+        <li>
+          <span class="fa-li"
+            ><i
+              class="fa-solid fa-x"
+              title="Not found in pantry"
+              style="color: red"
+            ></i
+          ></span>
+          {{ ingredient.original }}
+        </li>
         {% endif %} {% else %}
         <li>{{ ingredient.original }}</li>
         {% endif %} {% endfor %}
