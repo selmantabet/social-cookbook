@@ -38,9 +38,9 @@
         <p>{{ form.image(class_="form-control") }}</p>
         <h4>Visibility</h4>
         <p>{{ form.visibility(class_="form-control") }}</p>
-        {% for error in form.image.errors %} {% if "size" in error %}
+        {% for error in form.image.errors %}
         <span style="color: red">[{{ error }}]</span>
-        {% endif %} {% endfor %}
+        {% endfor %}
       </div>
     </div>
   </div>

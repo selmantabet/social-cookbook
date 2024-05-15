@@ -94,7 +94,7 @@ class RecipeForm(FlaskForm):
     instructions = TextAreaField('Instructions', validators=[
         DataRequired()])
     image = FileField('Upload image', validators=[
-        FileRequired(), FileSizeLimit(max_size_in_mb=4), FileAllowed(images, 'Only image files are allowed!')], default=None)
+        FileRequired(), FileSizeLimit(max_size_in_mb=4), FileAllowed(images, 'Unsupported media type!')], default=None)
     visibility = RadioField('Visibility', choices=[
                             'Public', 'Private'], validators=[DataRequired()])
     submit = SubmitField('Submit')
@@ -122,7 +122,7 @@ class SearchForm(FlaskForm):
 
 class SettingsForm(FlaskForm):
     dp = FileField('Upload display picture', validators=[
-        FileRequired(), FileSizeLimit(max_size_in_mb=2), FileAllowed(images, 'Only image files are allowed!')], default=None)
+        FileRequired(), FileSizeLimit(max_size_in_mb=2), FileAllowed(images, 'Unsupported media type!')], default=None)
     submit = SubmitField('Save')
 
 
