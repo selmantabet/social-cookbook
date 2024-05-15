@@ -22,8 +22,7 @@
         {% endfor %}
         <div>
           {% with messages = get_flashed_messages() %} {% if messages %} {% for
-          message in messages %} {% if message == "Invalid username or
-          password." %}
+          message in messages %} {% if "Invalid" in message %}
           <span style="color: red">[{{ message }}]</span>
           {% endif %} {% endfor %} {% endif %} {% endwith %}
         </div>
