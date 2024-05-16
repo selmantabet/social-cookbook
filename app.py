@@ -33,12 +33,16 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
+def force_colour_mode():
+    if session.get("colour_mode") is None:  # New account case
+        session['colour_mode'] = 'light'
 ######### Routes and views ############
 
 
 @app.route('/index', methods=['GET', 'POST'])
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    force_colour_mode()
     from forms import SearchForm
     search_form = SearchForm()
     if search_form.validate_on_submit():
@@ -54,6 +58,7 @@ def index():
 
 @app.route('/random')
 def random():
+    force_colour_mode()
     from helpers import random_recipes
     recipes = random_recipes()
     return render_template('random.html', recipes=recipes)
@@ -63,6 +68,7 @@ def random():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    force_colour_mode()
     from models import User
     from forms import RegistrationForm
     form = RegistrationForm()
@@ -79,6 +85,7 @@ def register():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    force_colour_mode()
     from models import User
     from forms import LoginForm
     from helpers import load_settings
@@ -325,6 +332,7 @@ def add_recipe():
 
 @ app.route('/view_recipe/<int:recipe_id>', methods=['GET', 'POST'])
 def view_recipe(recipe_id):
+    force_colour_mode()
     from models import Recipe
     from forms import CommentForm
     from helpers import DEFAULT_DP, DIET_TITLES, DIET_VALUES
@@ -370,6 +378,7 @@ def view_recipe(recipe_id):
 
 @ app.route('/view_external_recipe/<int:recipe_id>', methods=['GET', 'POST'])
 def view_external_recipe(recipe_id):
+    force_colour_mode()
     from helpers import search_by_recipe_id
     recipe = search_by_recipe_id(recipe_id)
     if recipe is None:
